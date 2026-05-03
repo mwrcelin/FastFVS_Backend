@@ -6,6 +6,7 @@ import br.upe.fastfvs.entities.enums.StatusFVS;
 import java.util.UUID;
 
 public interface FVSService {
+
     FVS criarFVS(FVS fvs, Usuario criador);
     FVS atualizarStatus(UUID fvsId, StatusFVS novoStatus, Usuario usuario, String observacao);
     long contarFvsPorStatusEObra(Long obraId, StatusFVS status);

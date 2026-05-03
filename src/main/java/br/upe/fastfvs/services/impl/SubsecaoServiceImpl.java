@@ -35,7 +35,7 @@ public class SubsecaoServiceImpl implements SubsecaoService {
                 novaFvs.setTitulo(titulo);
                 novaFvs.setSubsecao(salva);
 
-                // Chama o service para garantir o registro no HistóricoFVS
+                //
                 fvsService.criarFVS(novaFvs, criador);
             }
         }

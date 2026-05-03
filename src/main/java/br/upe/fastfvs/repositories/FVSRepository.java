@@ -14,10 +14,10 @@ public interface FVSRepository extends JpaRepository<FVS, UUID> {
     // Lista todas as fichas de uma subseção (ex: Apt 101)
     List<FVS> findBySubsecao(Subsecao subsecao);
 
-    // NOVO: Para o filtro de navegação (Ex: Quero ver só as FVS "NÃO CONFORMES" do Apt 101)
+    // Para o filtro de navegação
     List<FVS> findBySubsecaoAndStatus(Subsecao subsecao, StatusFVS status);
 
-    // NOVO: Para o Resumo de Conformidade. Conta quantas FVS existem com um certo status na OBRA inteira
+    // Para o resumo de conformidade.
     @Query("SELECT COUNT(f) FROM FVS f WHERE f.subsecao.obra.id = :obraId AND f.status = :status")
     long countByObraIdAndStatus(@Param("obraId") Long obraId, @Param("status") StatusFVS status);
 

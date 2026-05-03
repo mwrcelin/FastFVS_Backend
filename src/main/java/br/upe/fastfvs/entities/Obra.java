@@ -18,6 +18,7 @@ public class Obra {
     @Column(nullable = false)
     private String nome;
 
+    @Column(nullable = false)
     private String linkProjeto;
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)

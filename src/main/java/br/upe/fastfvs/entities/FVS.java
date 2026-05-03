@@ -16,10 +16,10 @@ public class FVS {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id; // Permite a criação da FVS offline no celular sem conflitar no banco depois, com log ou int conflitaria
+    private UUID id; // a criação da FVS offline no celular sem conflitar no banco depois, com log ou int conflitaria
 
     @Version
-    private Long versao; // Protege contra alterações simultâneas, pra sincronização offline
+    private Long versao; // protege contra alterações simultâneas, pra sincronização offline
 
     @Column(nullable = false)
     private String titulo;
@@ -29,9 +29,10 @@ public class FVS {
     private StatusFVS status;
 
     @Column(nullable = false, updatable = false)
-    private Instant dataAbertura; // UTC para evitar bagunça de fuso horário
+    private Instant dataAbertura;
 
-    private Instant dataUltimaEdicao; // UTC
+    @Column
+    private Instant dataUltimaEdicao;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "subsecao_id")

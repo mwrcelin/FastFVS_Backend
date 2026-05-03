@@ -25,15 +25,16 @@ public class HistoricoFVS {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "usuario_id")
-    private Usuario usuario; // Quem fez a alteração (mesmo estando offline)
+    private Usuario usuario; // quem fez a alteração (mesmo estando offline)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AcaoFVS acao;
 
     @Column(nullable = false)
-    private Instant dataHora; // Momento exato da ação salvo em UTC
+    private Instant dataHora; // horario da ação
 
+    @Column
     private String observacao;
 
 }

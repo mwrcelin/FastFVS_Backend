@@ -7,6 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface HistoricoFVSRepository extends JpaRepository<HistoricoFVS, UUID> {
-    // Busca o histórico completo de uma ficha específica ordenada por data
     List<HistoricoFVS> findByFvsOrderByDataHoraDesc(FVS fvs);
 }

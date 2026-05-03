@@ -4,5 +4,4 @@ public enum TipoSubsecao {
     BLOCO,
     PAVIMENTO,
     APARTAMENTO,
-    OUTRO
 }
