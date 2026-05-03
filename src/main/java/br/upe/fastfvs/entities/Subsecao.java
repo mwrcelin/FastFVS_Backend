@@ -37,5 +37,4 @@ public class Subsecao {
     @OneToMany(mappedBy = "subsecao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FVS> fichas;
 
-
 }

@@ -1,4 +1,5 @@
 package br.upe.fastfvs.controllers;
 
-public class UsuarioController {
+public class AuthController {
+
 }
