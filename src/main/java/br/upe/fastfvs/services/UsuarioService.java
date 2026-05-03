@@ -1,4 +1,9 @@
 package br.upe.fastfvs.services;
 
-public class UsuarioService {
+import br.upe.fastfvs.entities.Usuario;
+
+public interface UsuarioService {
+    Usuario cadastrar(Usuario usuario);
+    Usuario buscarPorEmail(String email);
+    Usuario buscarPorId(Long id);
 }

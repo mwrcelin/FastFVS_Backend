@@ -21,4 +21,6 @@ public interface FVSRepository extends JpaRepository<FVS, UUID> {
     @Query("SELECT COUNT(f) FROM FVS f WHERE f.subsecao.obra.id = :obraId AND f.status = :status")
     long countByObraIdAndStatus(@Param("obraId") Long obraId, @Param("status") StatusFVS status);
 
+    @Query("SELECT COUNT(f) FROM FVS f WHERE f.subsecao.obra.id = :obraId")
+    long countBySubsecaoObraId(@Param("obraId") Long obraId);
 }
