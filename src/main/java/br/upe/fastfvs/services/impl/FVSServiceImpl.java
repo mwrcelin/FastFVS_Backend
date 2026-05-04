@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -73,5 +74,13 @@ public class FVSServiceImpl implements FVSService {
         historico.setObservacao(obs);
 
         historicoRepository.save(historico);
+    }
+
+    @Override
+    public List<String> listarNomesPadroes() {
+        return List.of(
+                "Hidráulica", "Azulejo", "Pintura",
+                "Instalação Elétrica", "Impermeabilização"
+        );
     }
 }

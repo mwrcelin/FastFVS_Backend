@@ -19,23 +19,17 @@ public class SubsecaoServiceImpl implements SubsecaoService {
     private final SubsecaoRepository repository;
     private final FVSService fvsService; // Injetado para criar as FVS com histórico
 
+
     @Override
     @Transactional
-    public Subsecao criarSubsecao(Subsecao subsecao, Usuario criador, boolean gerarFvsPadrao) {
+    public Subsecao criarSubsecao(Subsecao subsecao, Usuario criador, List<String> fvsEscolhidas) {
         Subsecao salva = repository.save(subsecao);
 
-        if (gerarFvsPadrao) {
-
-            List<String> fvsPadroes = List.of(
-                    "Hidráulica", "Azulejo", "Pintura", "Instalação Elétrica", "Impermeabilização"
-            );
-
-            for (String titulo : fvsPadroes) {
+        if (fvsEscolhidas != null && !fvsEscolhidas.isEmpty()) {
+            for (String titulo : fvsEscolhidas) {
                 FVS novaFvs = new FVS();
                 novaFvs.setTitulo(titulo);
                 novaFvs.setSubsecao(salva);
-
-                //
                 fvsService.criarFVS(novaFvs, criador);
             }
         }

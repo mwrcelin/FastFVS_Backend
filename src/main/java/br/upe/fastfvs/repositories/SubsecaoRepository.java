@@ -12,6 +12,4 @@ public interface SubsecaoRepository extends JpaRepository<Subsecao, Long> {
 
     // Lista as subseções filhas de um pavimento, por exemplo
     List<Subsecao> findByPaiId(Long paiId);
-
-    Subsecao criarSubsecao(Subsecao subsecao, Usuario criador, boolean gerarFvsPadrao);
 }

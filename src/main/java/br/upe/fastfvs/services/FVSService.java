@@ -4,6 +4,7 @@ import br.upe.fastfvs.entities.FVS;
 import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.enums.StatusFVS;
 import java.util.UUID;
+import java.util.List;
 
 public interface FVSService {
 
@@ -11,4 +12,5 @@ public interface FVSService {
     FVS atualizarStatus(UUID fvsId, StatusFVS novoStatus, Usuario usuario, String observacao);
     long contarFvsPorStatusEObra(Long obraId, StatusFVS status);
     double calcularPercentualConformidade(Long obraId);
+    List<String> listarNomesPadroes();
 }
