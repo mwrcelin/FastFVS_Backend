@@ -7,7 +7,15 @@ import br.upe.fastfvs.entities.enums.TipoPermissao;
 import java.util.List;
 
 public interface MembroObraService {
+
+
     MembroObra adicionarMembro(Obra obra, Usuario usuario, TipoPermissao role);
+
+    MembroObra adicionarMembro(Long usuarioId, Long obraId, TipoPermissao role);
+
     List<MembroObra> listarMembrosPorObra(Long obraId);
     TipoPermissao buscarPermissao(Long usuarioId, Long obraId);
+
+    void removerMembro(Long id);
+    MembroObra alterarRole(Long id, String novaRole);
 }

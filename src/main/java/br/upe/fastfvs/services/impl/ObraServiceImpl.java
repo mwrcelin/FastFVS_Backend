@@ -39,4 +39,11 @@ public class ObraServiceImpl implements ObraService {
     public List<Obra> listarObrasDoUsuario(Long usuarioId) {
         return obraRepository.findByMembrosUsuarioId(usuarioId);
     }
+
+    @Override
+    public Obra buscarPorId(Long id) {
+        return obraRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Obra não encontrada com o ID: " + id));
+    }
+
 }

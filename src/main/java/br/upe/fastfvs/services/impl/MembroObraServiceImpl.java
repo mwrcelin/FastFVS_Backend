@@ -6,6 +6,8 @@ import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.enums.TipoPermissao;
 import br.upe.fastfvs.repositories.MembroObraRepository;
 import br.upe.fastfvs.services.MembroObraService;
+import br.upe.fastfvs.services.ObraService;
+import br.upe.fastfvs.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ import java.util.List;
 public class MembroObraServiceImpl implements MembroObraService {
 
     private final MembroObraRepository repository;
+    private final UsuarioService usuarioService;
+    private final ObraService obraService;
 
     @Override
     public MembroObra adicionarMembro(Obra obra, Usuario usuario, TipoPermissao role) {
@@ -27,25 +31,40 @@ public class MembroObraServiceImpl implements MembroObraService {
     }
 
     @Override
+    public MembroObra adicionarMembro(Long usuarioId, Long obraId, TipoPermissao role) {
+        // Busca as entidades no banco
+        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        Obra obra = obraService.buscarPorId(obraId);
+
+        // Reaproveita o método de cima
+        return this.adicionarMembro(obra, usuario, role);
+    }
+
+    @Override
     public List<MembroObra> listarMembrosPorObra(Long obraId) {
-        // Nota: Você pode precisar adicionar findByObraId no seu MembroObraRepository
-        return repository.findAll().stream()
-                .filter(m -> m.getObra().getId().equals(obraId))
-                .toList();
+        return repository.findByObraId(obraId);
     }
 
     @Override
     public TipoPermissao buscarPermissao(Long usuarioId, Long obraId) {
+        return repository.findByUsuarioIdAndObraId(usuarioId, obraId)
+                .map(MembroObra::getRole)
+                .orElse(null);
+    }
 
-        Usuario usuarioRef = new Usuario();
-        usuarioRef.setId(usuarioId);
+    @Override
+    public void removerMembro(Long id) {
+        repository.deleteById(id);
+    }
 
-        Obra obraRef = new Obra();
-        obraRef.setId(obraId);
+    @Override
+    public MembroObra alterarRole(Long id, String novaRole) {
+        MembroObra membro = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Membro não encontrado"));
 
-        MembroObra vinculo = repository.findByUsuarioAndObra(usuarioRef, obraRef)
-                .orElseThrow(() -> new RuntimeException("O usuário não faz parte desta obra. Acesso negado."));
+        TipoPermissao permissao = TipoPermissao.valueOf(novaRole.toUpperCase());
+        membro.setRole(permissao);
 
-        return vinculo.getRole(); // Retorna se é GERENTE ou PADRAO
+        return repository.save(membro);
     }
 }

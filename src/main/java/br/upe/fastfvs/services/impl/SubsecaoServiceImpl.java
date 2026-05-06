@@ -4,6 +4,7 @@ import br.upe.fastfvs.entities.FVS;
 import br.upe.fastfvs.entities.Obra;
 import br.upe.fastfvs.entities.Subsecao;
 import br.upe.fastfvs.entities.Usuario;
+import br.upe.fastfvs.entities.enums.TipoSubsecao;
 import br.upe.fastfvs.repositories.SubsecaoRepository;
 import br.upe.fastfvs.services.FVSService;
 import br.upe.fastfvs.services.SubsecaoService;
@@ -23,13 +24,16 @@ public class SubsecaoServiceImpl implements SubsecaoService {
     @Override
     @Transactional
     public Subsecao criarSubsecao(Subsecao subsecao, Usuario criador, List<String> fvsEscolhidas) {
+        // 1. Salva a subseção primeiro para gerar o ID
         Subsecao salva = repository.save(subsecao);
 
+        // 2. Cria as FVS automaticamente baseadas nos títulos escolhidos (ex: "Alvenaria", "Pintura")
         if (fvsEscolhidas != null && !fvsEscolhidas.isEmpty()) {
             for (String titulo : fvsEscolhidas) {
                 FVS novaFvs = new FVS();
                 novaFvs.setTitulo(titulo);
                 novaFvs.setSubsecao(salva);
+                // O fvsService já trata datas e status inicial
                 fvsService.criarFVS(novaFvs, criador);
             }
         }
@@ -47,5 +51,71 @@ public class SubsecaoServiceImpl implements SubsecaoService {
     @Override
     public List<Subsecao> listarFilhas(Long paiId) {
         return repository.findByPaiId(paiId);
+    }
+
+    @Override
+    @Transactional
+    public void criarEstruturaAutomatica(
+            Long obraId,
+            int qtdBlocos,
+            int pavPorBloco,
+            int aptPorPav,
+            String padraoNumeracao,
+            Usuario criador,
+            List<String> fvsEscolhidas) {
+
+        // 1. Recupera a obra
+        Obra obra = new Obra();
+        obra.setId(obraId);
+
+        // 2. Lógica para extrair o início da numeração do padrão (ex: "100 - 200" -> 100)
+        int numeroBaseApto = 0;
+        try {
+            if (padraoNumeracao != null && padraoNumeracao.contains("-")) {
+                String parteInicial = padraoNumeracao.split("-")[0].trim();
+                numeroBaseApto = Integer.parseInt(parteInicial);
+            }
+        } catch (NumberFormatException e) {
+            numeroBaseApto = 0; // Fallback caso o formato esteja errado
+        }
+
+        int contadorPavimento = 1;
+        int contadorApto = numeroBaseApto + 1;
+
+        // 3. Loop de Blocos
+        for (int b = 1; b <= qtdBlocos; b++) {
+            Subsecao bloco = new Subsecao();
+            bloco.setNome("Bloco " + b);
+            bloco.setTipo(TipoSubsecao.BLOCO);
+            bloco.setObra(obra);
+            bloco.setPai(null); // Bloco é raiz
+            Subsecao blocoSalvo = repository.save(bloco);
+
+            // 4. Loop de Pavimentos por Bloco
+            for (int p = 1; p <= pavPorBloco; p++) {
+                Subsecao pavimento = new Subsecao();
+                pavimento.setNome("Pavimento " + contadorPavimento);
+                pavimento.setTipo(TipoSubsecao.PAVIMENTO);
+                pavimento.setObra(obra);
+                pavimento.setPai(blocoSalvo);
+                Subsecao pavSalvo = repository.save(pavimento);
+
+                contadorPavimento++; // Incrementa globalmente conforme seu exemplo
+
+                // 5. Loop de Apartamentos por Pavimento
+                for (int a = 1; a <= aptPorPav; a++) {
+                    Subsecao apartamento = new Subsecao();
+                    apartamento.setNome("Apartamento " + contadorApto);
+                    apartamento.setTipo(TipoSubsecao.APARTAMENTO);
+                    apartamento.setObra(obra);
+                    apartamento.setPai(pavSalvo);
+
+                    // Chamamos o método existente para salvar e já criar as FVS vinculadas
+                    this.criarSubsecao(apartamento, criador, fvsEscolhidas);
+
+                    contadorApto++; // Incrementa globalmente conforme seu exemplo
+                }
+            }
+        }
     }
 }

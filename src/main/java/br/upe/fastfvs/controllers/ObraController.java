@@ -20,9 +20,9 @@ public class ObraController {
     private final ObraService obraService;
     private final UsuarioService usuarioService;
 
-    @PostMapping("/usuario/{usuarioId}")
-    public ResponseEntity<ObraDTO> criarObra(@PathVariable Long usuarioId, @RequestBody ObraDTO dto) {
-        Usuario criador = usuarioService.buscarPorId(usuarioId);
+    @PostMapping
+    public ResponseEntity<ObraDTO> criarObra(@RequestBody ObraDTO dto) {
+        Usuario criador = usuarioService.buscarPorId(dto.usuarioId());
         Obra obra = obraService.criarObra(dto.toEntity(), criador);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ObraDTO(obra));
     }

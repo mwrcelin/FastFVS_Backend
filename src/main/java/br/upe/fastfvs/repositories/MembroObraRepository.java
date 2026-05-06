@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MembroObraRepository extends JpaRepository<MembroObra, Long> {
-    // Lista todos os vínculos de um utilizador específico
-    List<MembroObra> findByUsuario(Usuario usuario);
 
-    // Verifica se um utilizador específico faz parte de uma obra
+    List<MembroObra> findByUsuario(Usuario usuario);
     Optional<MembroObra> findByUsuarioAndObra(Usuario usuario, Obra obra);
+
+    List<MembroObra> findByObraId(Long obraId);
+
+    Optional<MembroObra> findByUsuarioIdAndObraId(Long usuarioId, Long obraId);
 }
