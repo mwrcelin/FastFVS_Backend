@@ -2,6 +2,7 @@ package br.upe.fastfvs.services.impl;
 
 import br.upe.fastfvs.entities.FVS;
 import br.upe.fastfvs.entities.HistoricoFVS;
+import br.upe.fastfvs.entities.Subsecao;
 import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.enums.AcaoFVS;
 import br.upe.fastfvs.entities.enums.StatusFVS;
@@ -82,5 +83,17 @@ public class FVSServiceImpl implements FVSService {
                 "Hidráulica", "Azulejo", "Pintura",
                 "Instalação Elétrica", "Impermeabilização"
         );
+    }
+
+    @Override
+    public List<FVS> listarPorSubsecao(Long subsecaoId) {
+        return fvsRepository.findBySubsecaoId(subsecaoId);
+    }
+
+    @Override
+    public List<FVS> listarPorSubsecaoEStatus(Long subsecaoId, StatusFVS status) {
+        Subsecao subsecao = new Subsecao();
+        subsecao.setId(subsecaoId);
+        return fvsRepository.findBySubsecaoAndStatus(subsecao, status);
     }
 }

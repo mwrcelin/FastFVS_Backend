@@ -1,6 +1,5 @@
 package br.upe.fastfvs.entities;
 
-import br.upe.fastfvs.entities.enums.TipoSubsecao;
 import jakarta.persistence.*; // Para @Entity, @Id, @GeneratedValue, etc.
 import lombok.*;               // Para @Getter, @Setter, etc.
 import java.util.List;         // Para a List das obras
@@ -19,15 +18,14 @@ public class Subsecao {
     @Column(nullable = false)
     private String nome;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoSubsecao tipo;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "obra_id")
     private Obra obra;
 
+    @Column(nullable = false)
+    private String linkProjeto;
     @ManyToOne
+
     @JoinColumn(name = "pai_id")
     private Subsecao pai;
 

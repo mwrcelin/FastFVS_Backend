@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import br.upe.fastfvs.services.QrCodeService;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class ObraController {
 
     private final ObraService obraService;
     private final UsuarioService usuarioService;
+    private final QrCodeService qrCodeService;
 
     @PostMapping
     public ResponseEntity<ObraDTO> criarObra(@RequestBody ObraDTO dto) {
@@ -33,4 +35,28 @@ public class ObraController {
                 .stream().map(ObraDTO::new).toList();
         return ResponseEntity.ok(obras);
     }
+
+
+    @GetMapping("/{id}/qrcode")
+    public ResponseEntity<String> obterQRCodeObra(@PathVariable Long id) {
+        // 1. Busca a obra para garantir que ela existe (se não existir, o service lança exceção)
+        Obra obra = obraService.buscarPorId(id);
+
+        // 2. Cria o Deep Link apontando para a tela da Obra
+        String urlObra = "https://fastfvs-app.com/obra/" + obra.getId();
+
+        // 3. Gera o QR Code em Base64
+        String qrCodeBase64 = qrCodeService.gerarQRCodeBase64(urlObra, 300, 300);
+
+        return ResponseEntity.ok(qrCodeBase64);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ObraDTO> buscarPorId(@PathVariable Long id) {
+        Obra obra = obraService.buscarPorId(id);
+        // O DTO precisa ser instanciado conforme seus construtores disponíveis
+        return ResponseEntity.ok(new ObraDTO(obra));
+    }
+
+    
 }

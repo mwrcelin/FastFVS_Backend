@@ -4,7 +4,6 @@ import br.upe.fastfvs.entities.FVS;
 import br.upe.fastfvs.entities.Obra;
 import br.upe.fastfvs.entities.Subsecao;
 import br.upe.fastfvs.entities.Usuario;
-import br.upe.fastfvs.entities.enums.TipoSubsecao;
 import br.upe.fastfvs.repositories.SubsecaoRepository;
 import br.upe.fastfvs.services.FVSService;
 import br.upe.fastfvs.services.SubsecaoService;
@@ -53,6 +52,29 @@ public class SubsecaoServiceImpl implements SubsecaoService {
         return repository.findByPaiId(paiId);
     }
 
+
+    @Override
+    public Subsecao buscarPorId(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Subseção não encontrada com o ID: " + id));
+    }
+
+    @Override
+    public String obterCaminhoCompleto(Long subsecaoId) {
+        Subsecao subsecao = repository.findById(subsecaoId)
+                .orElseThrow(() -> new RuntimeException("Subseção não encontrada"));
+
+        StringBuilder caminho = new StringBuilder(subsecao.getNome());
+        Subsecao pai = subsecao.getPai();
+
+        while (pai != null) {
+            caminho.insert(0, pai.getNome() + " > ");
+            pai = pai.getPai();
+        }
+
+        return caminho.toString();
+    }
+
     @Override
     @Transactional
     public void criarEstruturaAutomatica(
@@ -86,7 +108,6 @@ public class SubsecaoServiceImpl implements SubsecaoService {
         for (int b = 1; b <= qtdBlocos; b++) {
             Subsecao bloco = new Subsecao();
             bloco.setNome("Bloco " + b);
-            bloco.setTipo(TipoSubsecao.BLOCO);
             bloco.setObra(obra);
             bloco.setPai(null); // Bloco é raiz
             Subsecao blocoSalvo = repository.save(bloco);
@@ -95,7 +116,6 @@ public class SubsecaoServiceImpl implements SubsecaoService {
             for (int p = 1; p <= pavPorBloco; p++) {
                 Subsecao pavimento = new Subsecao();
                 pavimento.setNome("Pavimento " + contadorPavimento);
-                pavimento.setTipo(TipoSubsecao.PAVIMENTO);
                 pavimento.setObra(obra);
                 pavimento.setPai(blocoSalvo);
                 Subsecao pavSalvo = repository.save(pavimento);
@@ -106,7 +126,6 @@ public class SubsecaoServiceImpl implements SubsecaoService {
                 for (int a = 1; a <= aptPorPav; a++) {
                     Subsecao apartamento = new Subsecao();
                     apartamento.setNome("Apartamento " + contadorApto);
-                    apartamento.setTipo(TipoSubsecao.APARTAMENTO);
                     apartamento.setObra(obra);
                     apartamento.setPai(pavSalvo);
 
@@ -117,5 +136,7 @@ public class SubsecaoServiceImpl implements SubsecaoService {
                 }
             }
         }
+
+
     }
 }
