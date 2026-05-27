@@ -1,8 +1,8 @@
 package br.upe.fastfvs.entities;
 
-import jakarta.persistence.*; // Para @Entity, @Id, @GeneratedValue, etc.
-import lombok.*;               // Para @Getter, @Setter, etc.
-import java.util.List;         // Para a List das obras
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.List;
 
 @Entity
 @Getter

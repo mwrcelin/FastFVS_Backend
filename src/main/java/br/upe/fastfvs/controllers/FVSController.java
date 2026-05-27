@@ -39,7 +39,6 @@ public class FVSController {
         return ResponseEntity.ok(new ConformidadeResponseDTO(valor));
     }
 
-    // ✅ CORRIGIDO: Validar subsecção ANTES de usar
     @PostMapping
     public ResponseEntity<FVSResponseDTO> criar(
             @RequestBody @Valid FVSCreateDTO dto,

@@ -29,13 +29,12 @@ public class SubsecaoServiceImpl implements SubsecaoService {
         // 1. Salva a subseção primeiro para gerar o ID
         Subsecao salva = repository.save(subsecao);
 
-        // 2. Cria as FVS automaticamente baseadas nos títulos escolhidos (ex: "Alvenaria", "Pintura")
         if (fvsEscolhidas != null && !fvsEscolhidas.isEmpty()) {
             for (String titulo : fvsEscolhidas) {
                 FVS novaFvs = new FVS();
                 novaFvs.setTitulo(titulo);
                 novaFvs.setSubsecao(salva);
-                // O fvsService já trata datas e status inicial
+
                 fvsService.criarFVS(novaFvs, criador);
             }
         }
@@ -44,7 +43,6 @@ public class SubsecaoServiceImpl implements SubsecaoService {
 
     @Override
     public List<Subsecao> listarRaizPorObra(Long obraId) {
-        // referência da obra apenas com o ID para a consulta
         Obra obra = new Obra();
         obra.setId(obraId);
         return repository.findByObraAndPaiIsNull(obra);

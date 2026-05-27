@@ -9,7 +9,7 @@ public record HistoricoFVSDTO(
         UUID id,
         AcaoFVS acao,
         Instant dataHora,
-        String usuarioNome, // Já traz o nome para facilitar o ecrã do telemóvel
+        String usuarioNome,
         String observacao
 ) {
     public HistoricoFVSDTO(HistoricoFVS entity) {

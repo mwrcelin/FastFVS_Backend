@@ -16,10 +16,10 @@ public class FVS {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id; // a criação da FVS offline no celular sem conflitar no banco depois, com log ou int conflitaria
+    private UUID id;
 
     @Version
-    private Long versao; // protege contra alterações simultâneas, pra sincronização offline
+    private Long versao;
 
     @Column(nullable = false)
     private String titulo;

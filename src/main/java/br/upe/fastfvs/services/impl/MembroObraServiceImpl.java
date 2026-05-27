@@ -32,11 +32,9 @@ public class MembroObraServiceImpl implements MembroObraService {
 
     @Override
     public MembroObra adicionarMembro(Long usuarioId, Long obraId, TipoPermissao role) {
-        // Busca as entidades no banco
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         Obra obra = obraService.buscarPorId(obraId);
 
-        // Reaproveita o método de cima
         return this.adicionarMembro(obra, usuario, role);
     }
 
