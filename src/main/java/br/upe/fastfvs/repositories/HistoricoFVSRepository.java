@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface HistoricoFVSRepository extends JpaRepository<HistoricoFVS, UUID> {
     List<HistoricoFVS> findByFvsOrderByDataHoraDesc(FVS fvs);
+
+    List<HistoricoFVS> findByFvsIdOrderByDataHoraDesc(UUID fvsId);
 }

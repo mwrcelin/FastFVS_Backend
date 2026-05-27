@@ -15,6 +15,7 @@ public record FVSResponseDTO(
         Long subsecaoId,
         Long abertaPorId
 ) {
+    
     public FVSResponseDTO(FVS entity) {
         this(
                 entity.getId(),
@@ -23,8 +24,8 @@ public record FVSResponseDTO(
                 entity.getStatus(),
                 entity.getDataAbertura(),
                 entity.getDataUltimaEdicao(),
-                entity.getSubsecao().getId(),
-                entity.getAbertaPor().getId()
+                entity.getSubsecao() != null ? entity.getSubsecao().getId() : null,
+                entity.getAbertaPor() != null ? entity.getAbertaPor().getId() : null
         );
     }
 }

@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface FVSRepository extends JpaRepository<FVS, UUID> {
-    // Lista todas as fichas de uma subseção (ex: Apt 101)
+
     List<FVS> findBySubsecao(Subsecao subsecao);
 
-    // Para o filtro de navegação
     List<FVS> findBySubsecaoAndStatus(Subsecao subsecao, StatusFVS status);
 
-    // Para o resumo de conformidade.
+    List<FVS> findBySubsecaoIdAndStatus(Long subsecaoId, StatusFVS status);
+
     @Query("SELECT COUNT(f) FROM FVS f WHERE f.subsecao.obra.id = :obraId AND f.status = :status")
     long countByObraIdAndStatus(@Param("obraId") Long obraId, @Param("status") StatusFVS status);
 

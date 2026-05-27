@@ -6,9 +6,11 @@ import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.dtos.EstruturaAutomaticaDTO;
 import br.upe.fastfvs.entities.dtos.SubsecaoCreateDTO;
 import br.upe.fastfvs.entities.dtos.SubsecaoResponseDTO;
+import br.upe.fastfvs.services.ObraService;
 import br.upe.fastfvs.services.QrCodeService;
 import br.upe.fastfvs.services.SubsecaoService;
 import br.upe.fastfvs.services.UsuarioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,22 +25,22 @@ public class SubsecaoController {
 
     private final SubsecaoService subsecaoService;
     private final UsuarioService usuarioService;
+    private final ObraService obraService;
     private final QrCodeService qrCodeService;
 
     @PostMapping
-    public ResponseEntity<SubsecaoResponseDTO> criarSubsecao(@RequestBody SubsecaoCreateDTO dto) {
+    public ResponseEntity<SubsecaoResponseDTO> criarSubsecao(
+            @RequestBody @Valid SubsecaoCreateDTO dto) {
         Usuario criador = usuarioService.buscarPorId(dto.usuarioId());
 
-        Subsecao novaSubsecao = dto.toEntity();
+        Obra obra = obraService.buscarPorId(dto.obraId());
 
-        Obra obraRef = new Obra();
-        obraRef.setId(dto.obraId());
-        novaSubsecao.setObra(obraRef);
+        Subsecao novaSubsecao = dto.toEntity();
+        novaSubsecao.setObra(obra);
 
         if (dto.paiId() != null) {
-            Subsecao paiRef = new Subsecao();
-            paiRef.setId(dto.paiId());
-            novaSubsecao.setPai(paiRef);
+            Subsecao pai = subsecaoService.buscarPorId(dto.paiId());
+            novaSubsecao.setPai(pai);
         }
 
         Subsecao salva = subsecaoService.criarSubsecao(novaSubsecao, criador, dto.fvsEscolhidas());
@@ -67,14 +69,13 @@ public class SubsecaoController {
     public ResponseEntity<String> obterQRCodeSubsecao(@PathVariable Long id) {
         Subsecao subsecao = subsecaoService.buscarPorId(id); // <- Adicione esse método no seu Service!
 
-        // 2. Cria o Deep Link apontando para a tela da Subseção
         String urlSubsecao = "https://fastfvs-app.com/subsecao/" + id;
 
-        // 3. Gera o QR Code
         String qrCodeBase64 = qrCodeService.gerarQRCodeBase64(urlSubsecao, 300, 300);
 
         return ResponseEntity.ok(qrCodeBase64);
     }
+
 
     @GetMapping("/{paiId}/filhas")
     public ResponseEntity<List<SubsecaoResponseDTO>> listarFilhas(@PathVariable Long paiId) {
@@ -106,4 +107,3 @@ public class SubsecaoController {
         return ResponseEntity.ok(Map.of("caminho", caminho));
     }
 }
-

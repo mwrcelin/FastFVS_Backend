@@ -32,7 +32,8 @@ public class SyncServiceImpl implements SyncService {
     @Override
     @Transactional
     public SyncResponseDTO processarSincronizacao(SyncRequestDTO request) {
-        List<UUID> sucessos = new ArrayList<>();
+
+        List<FVSResponseDTO> sucessos = new ArrayList<>();
         List<FVSResponseDTO> conflitos = new ArrayList<>();
 
         for (FVSSyncDTO item : request.alteracoes()) {
@@ -40,14 +41,10 @@ public class SyncServiceImpl implements SyncService {
 
             if (fvsOpt.isPresent()) {
                 FVS fvsBanco = fvsOpt.get();
-
-                // COMPARAÇÃO DE VERSÕES (A mágica do Sync)
                 if (fvsBanco.getVersao().equals(item.versao())) {
-                    // Versões coincidem: Podemos atualizar
-                    atualizarFVS(fvsBanco, item);
-                    sucessos.add(item.id());
+                    FVS atualizada = atualizarFVS(fvsBanco, item);
+                    sucessos.add(new FVSResponseDTO(atualizada));
                 } else {
-                    // Versões diferentes: Alguém editou antes na nuvem
                     conflitos.add(new FVSResponseDTO(fvsBanco));
                 }
             }
@@ -56,18 +53,17 @@ public class SyncServiceImpl implements SyncService {
         return new SyncResponseDTO(sucessos, conflitos);
     }
 
-    private void atualizarFVS(FVS fvs, FVSSyncDTO item) {
+    private FVS atualizarFVS(FVS fvs, FVSSyncDTO item) {
         Usuario usuario = usuarioService.buscarPorId(item.usuarioId());
 
         fvs.setStatus(item.status());
         fvs.setDataUltimaEdicao(item.dataUltimaEdicao());
         fvs.setUltimaEdicaoPor(usuario);
 
-        // Salva e incrementa a versão automaticamente (@Version)
         FVS fvsSalva = fvsRepository.save(fvs);
-
-        // Registra no histórico
         registrarHistorico(fvsSalva, usuario, item.observacao());
+
+        return fvsSalva;
     }
 
     private void registrarHistorico(FVS fvs, Usuario usuario, String obs) {

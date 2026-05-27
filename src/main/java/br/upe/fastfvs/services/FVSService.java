@@ -11,6 +11,7 @@ public interface FVSService {
     FVS criarFVS(FVS fvs, Usuario criador);
     FVS atualizarStatus(UUID fvsId, StatusFVS novoStatus, Usuario usuario, String observacao);
     long contarFvsPorStatusEObra(Long obraId, StatusFVS status);
+
     double calcularPercentualConformidade(Long obraId);
     List<String> listarNomesPadroes();
     List<FVS> listarPorSubsecao(Long subsecaoId);

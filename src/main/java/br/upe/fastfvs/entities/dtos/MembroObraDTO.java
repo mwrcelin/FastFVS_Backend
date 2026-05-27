@@ -15,7 +15,7 @@ public record MembroObraDTO(
         this(
                 entity.getId(),
                 entity.getUsuario().getId(),
-                entity.getUsuario().getNome(),
+                entity.getUsuario() != null ? entity.getUsuario().getNome() : "Usuário desconhecido",
                 entity.getObra().getId(),
                 entity.getRole()
         );

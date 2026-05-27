@@ -1,6 +1,5 @@
 package br.upe.fastfvs.services.impl;
 
-import br.upe.fastfvs.entities.FVS;
 import br.upe.fastfvs.entities.HistoricoFVS;
 import br.upe.fastfvs.repositories.HistoricoFVSRepository;
 import br.upe.fastfvs.services.HistoricoFVSService;
@@ -23,8 +22,6 @@ public class HistoricoFVSServiceImpl implements HistoricoFVSService {
 
     @Override
     public List<HistoricoFVS> listarPorFicha(UUID fvsId) {
-        FVS fvsRef = new FVS();
-        fvsRef.setId(fvsId);
-        return repository.findByFvsOrderByDataHoraDesc(fvsRef);
+        return repository.findByFvsIdOrderByDataHoraDesc(fvsId);
     }
 }

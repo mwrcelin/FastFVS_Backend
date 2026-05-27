@@ -11,10 +11,8 @@ public record SubsecaoResponseDTO(
         this(
                 entity.getId(),
                 entity.getNome(),
-                entity.getObra().getId(),
+                entity.getObra() != null ? entity.getObra().getId() : null,
                 entity.getPai() != null ? entity.getPai().getId() : null
         );
     }
-
-
 }

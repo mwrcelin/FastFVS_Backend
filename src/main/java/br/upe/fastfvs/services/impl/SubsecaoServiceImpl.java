@@ -6,18 +6,21 @@ import br.upe.fastfvs.entities.Subsecao;
 import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.repositories.SubsecaoRepository;
 import br.upe.fastfvs.services.FVSService;
+import br.upe.fastfvs.services.ObraService;
 import br.upe.fastfvs.services.SubsecaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
+
 @Service
 @RequiredArgsConstructor
 public class SubsecaoServiceImpl implements SubsecaoService {
 
     private final SubsecaoRepository repository;
-    private final FVSService fvsService; // Injetado para criar as FVS com histórico
+    private final FVSService fvsService;
+    private final ObraService obraService;
 
 
     @Override
@@ -86,11 +89,8 @@ public class SubsecaoServiceImpl implements SubsecaoService {
             Usuario criador,
             List<String> fvsEscolhidas) {
 
-        // 1. Recupera a obra
-        Obra obra = new Obra();
-        obra.setId(obraId);
+        Obra obra = obraService.buscarPorId(obraId);
 
-        // 2. Lógica para extrair o início da numeração do padrão (ex: "100 - 200" -> 100)
         int numeroBaseApto = 0;
         try {
             if (padraoNumeracao != null && padraoNumeracao.contains("-")) {
@@ -98,21 +98,19 @@ public class SubsecaoServiceImpl implements SubsecaoService {
                 numeroBaseApto = Integer.parseInt(parteInicial);
             }
         } catch (NumberFormatException e) {
-            numeroBaseApto = 0; // Fallback caso o formato esteja errado
+            numeroBaseApto = 0;
         }
 
         int contadorPavimento = 1;
         int contadorApto = numeroBaseApto + 1;
 
-        // 3. Loop de Blocos
         for (int b = 1; b <= qtdBlocos; b++) {
             Subsecao bloco = new Subsecao();
             bloco.setNome("Bloco " + b);
             bloco.setObra(obra);
-            bloco.setPai(null); // Bloco é raiz
+            bloco.setPai(null);
             Subsecao blocoSalvo = repository.save(bloco);
 
-            // 4. Loop de Pavimentos por Bloco
             for (int p = 1; p <= pavPorBloco; p++) {
                 Subsecao pavimento = new Subsecao();
                 pavimento.setNome("Pavimento " + contadorPavimento);
@@ -120,23 +118,19 @@ public class SubsecaoServiceImpl implements SubsecaoService {
                 pavimento.setPai(blocoSalvo);
                 Subsecao pavSalvo = repository.save(pavimento);
 
-                contadorPavimento++; // Incrementa globalmente conforme seu exemplo
+                contadorPavimento++;
 
-                // 5. Loop de Apartamentos por Pavimento
                 for (int a = 1; a <= aptPorPav; a++) {
                     Subsecao apartamento = new Subsecao();
                     apartamento.setNome("Apartamento " + contadorApto);
                     apartamento.setObra(obra);
                     apartamento.setPai(pavSalvo);
 
-                    // Chamamos o método existente para salvar e já criar as FVS vinculadas
                     this.criarSubsecao(apartamento, criador, fvsEscolhidas);
 
-                    contadorApto++; // Incrementa globalmente conforme seu exemplo
+                    contadorApto++;
                 }
             }
         }
-
-
     }
 }
