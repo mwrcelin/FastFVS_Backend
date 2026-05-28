@@ -27,6 +27,6 @@ public class Usuario {
     @Column
     private String fotoPerfil;
 
-    @OneToMany(mappedBy = "usuario")
-    private List<MembroObra> obras;
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MembroObra> membros;
 }

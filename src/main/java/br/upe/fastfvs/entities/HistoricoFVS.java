@@ -36,4 +36,5 @@ public class HistoricoFVS {
     @Column
     private String observacao;
 
+
 }

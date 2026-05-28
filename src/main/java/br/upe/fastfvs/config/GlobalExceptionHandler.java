@@ -36,7 +36,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
 
-        // Verificar se é erro de entidade não encontrada
         if (ex.getMessage() != null && ex.getMessage().contains("não encontrad")) {
             Map<String, Object> resposta = new HashMap<>();
             resposta.put("status", HttpStatus.NOT_FOUND.value());

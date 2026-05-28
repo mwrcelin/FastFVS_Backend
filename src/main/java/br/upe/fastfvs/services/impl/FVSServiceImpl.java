@@ -92,8 +92,6 @@ public class FVSServiceImpl implements FVSService {
 
     @Override
     public List<FVS> listarPorSubsecaoEStatus(Long subsecaoId, StatusFVS status) {
-        Subsecao subsecao = new Subsecao();
-        subsecao.setId(subsecaoId);
-        return fvsRepository.findBySubsecaoAndStatus(subsecao, status);
+        return fvsRepository.findBySubsecaoIdAndStatus(subsecaoId, status);
     }
 }

@@ -26,7 +26,7 @@ public class SubsecaoServiceImpl implements SubsecaoService {
     @Override
     @Transactional
     public Subsecao criarSubsecao(Subsecao subsecao, Usuario criador, List<String> fvsEscolhidas) {
-        // 1. Salva a subseção primeiro para gerar o ID
+
         Subsecao salva = repository.save(subsecao);
 
         if (fvsEscolhidas != null && !fvsEscolhidas.isEmpty()) {
