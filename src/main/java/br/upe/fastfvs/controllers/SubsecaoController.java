@@ -31,6 +31,7 @@ public class SubsecaoController {
     @PostMapping
     public ResponseEntity<SubsecaoResponseDTO> criarSubsecao(
             @RequestBody @Valid SubsecaoCreateDTO dto) {
+
         Usuario criador = usuarioService.buscarPorId(dto.usuarioId());
 
         Obra obra = obraService.buscarPorId(dto.obraId());
@@ -67,7 +68,7 @@ public class SubsecaoController {
 
     @GetMapping("/{id}/qrcode")
     public ResponseEntity<String> obterQRCodeSubsecao(@PathVariable Long id) {
-        Subsecao subsecao = subsecaoService.buscarPorId(id); // <- Adicione esse método no seu Service!
+        Subsecao subsecao = subsecaoService.buscarPorId(id);
 
         String urlSubsecao = "https://fastfvs-app.com/subsecao/" + id;
 

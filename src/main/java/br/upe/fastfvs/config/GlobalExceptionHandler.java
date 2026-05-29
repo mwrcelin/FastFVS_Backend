@@ -36,14 +36,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
 
-        if (ex.getMessage() != null && ex.getMessage().contains("não encontrad")) {
+        if (ex.getMessage() != null && ex.getMessage().contains("não encontrado")) {
             Map<String, Object> resposta = new HashMap<>();
             resposta.put("status", HttpStatus.NOT_FOUND.value());
             resposta.put("mensagem", ex.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
         }
 
-        // Para outras RuntimeExceptions genéricas
         Map<String, Object> resposta = new HashMap<>();
         resposta.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         resposta.put("mensagem", "Erro interno no servidor");
@@ -74,4 +73,5 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resposta);
     }
+
 }

@@ -27,6 +27,9 @@ public class SubsecaoServiceImpl implements SubsecaoService {
     @Transactional
     public Subsecao criarSubsecao(Subsecao subsecao, Usuario criador, List<String> fvsEscolhidas) {
 
+        if (subsecao.getLinkProjeto() == null) {
+            subsecao.setLinkProjeto("");
+        }
         Subsecao salva = repository.save(subsecao);
 
         if (fvsEscolhidas != null && !fvsEscolhidas.isEmpty()) {
@@ -107,14 +110,18 @@ public class SubsecaoServiceImpl implements SubsecaoService {
             bloco.setNome("Bloco " + b);
             bloco.setObra(obra);
             bloco.setPai(null);
-            Subsecao blocoSalvo = repository.save(bloco);
+            bloco.setCriador(criador);
+            bloco.setLinkProjeto("");
+            Subsecao blocoSalvo = criarSubsecao(bloco, criador, fvsEscolhidas);
 
             for (int p = 1; p <= pavPorBloco; p++) {
                 Subsecao pavimento = new Subsecao();
                 pavimento.setNome("Pavimento " + contadorPavimento);
                 pavimento.setObra(obra);
                 pavimento.setPai(blocoSalvo);
-                Subsecao pavSalvo = repository.save(pavimento);
+                pavimento.setCriador(criador);
+                pavimento.setLinkProjeto("");
+                Subsecao pavSalvo = criarSubsecao(pavimento, criador, fvsEscolhidas);
 
                 contadorPavimento++;
 
@@ -123,6 +130,8 @@ public class SubsecaoServiceImpl implements SubsecaoService {
                     apartamento.setNome("Apartamento " + contadorApto);
                     apartamento.setObra(obra);
                     apartamento.setPai(pavSalvo);
+                    apartamento.setCriador(criador);
+                    apartamento.setLinkProjeto("");
 
                     this.criarSubsecao(apartamento, criador, fvsEscolhidas);
 

@@ -72,7 +72,7 @@ public class FVSController {
         List<FVS> fichas = fvsService.listarPorSubsecao(subsecaoId);
         List<FVSResponseDTO> dtos = fichas.stream()
                 .map(FVSResponseDTO::new)
-                .toList();
+                .toList();  
         return ResponseEntity.ok(dtos);
     }
 

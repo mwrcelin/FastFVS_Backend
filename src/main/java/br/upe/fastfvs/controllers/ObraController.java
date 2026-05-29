@@ -53,4 +53,10 @@ public class ObraController {
         Obra obra = obraService.buscarPorId(id);
         return ResponseEntity.ok(new ObraDTO(obra));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> apagarObra(@PathVariable Long id) {
+        obraService.apagarObra(id);
+        return ResponseEntity.noContent().build();
+    }
 }

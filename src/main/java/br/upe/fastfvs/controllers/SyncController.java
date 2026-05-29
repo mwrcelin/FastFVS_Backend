@@ -22,12 +22,4 @@ public class SyncController {
         SyncResponseDTO response = syncService.processarSincronizacao(request);
         return ResponseEntity.ok(response);
     }
-
-
-    //@ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    //public ResponseEntity<String> handleConflict(ObjectOptimisticLockingFailureException ex) {
-    //    return ResponseEntity.status(HttpStatus.CONFLICT)
-    //        .body("Erro de concorrência: Os dados foram alterados por outro utilizador. Por favor, sincronize novamente.");
-    //}
-    // Adicionar Tratamento quando fazer o handler de excessões
 }

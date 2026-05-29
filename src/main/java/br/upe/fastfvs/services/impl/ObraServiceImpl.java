@@ -46,4 +46,10 @@ public class ObraServiceImpl implements ObraService {
                 .orElseThrow(() -> new RuntimeException("Obra não encontrada com o ID: " + id));
     }
 
+    @Override
+    @Transactional
+    public void apagarObra(Long id) {
+        Obra obra = buscarPorId(id);
+        obraRepository.delete(obra);
+    }
 }

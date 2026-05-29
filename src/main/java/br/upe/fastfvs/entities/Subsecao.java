@@ -35,4 +35,7 @@ public class Subsecao {
     @OneToMany(mappedBy = "subsecao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FVS> fichas;
 
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    private Usuario criador;
 }

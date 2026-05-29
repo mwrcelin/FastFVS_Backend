@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -46,5 +47,6 @@ public class FVS {
     @JoinColumn(name = "ultima_edicao_por_id")
     private Usuario ultimaEdicaoPor;
 
-
+    @OneToMany(mappedBy = "fvs", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoricoFVS> historicos;
 }
