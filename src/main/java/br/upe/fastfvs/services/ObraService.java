@@ -9,4 +9,5 @@ public interface ObraService {
     List<Obra> listarObrasDoUsuario(Long usuarioId);
     Obra buscarPorId(Long id);
     void apagarObra(Long id);
+    Obra atualizarNome(Long id, String novoNome);
 }

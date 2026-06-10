@@ -4,8 +4,10 @@ import br.upe.fastfvs.entities.MembroObra;
 import br.upe.fastfvs.entities.Obra;
 import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.enums.TipoPermissao;
+import br.upe.fastfvs.exceptions.RecursoNaoEncontradoException;
 import br.upe.fastfvs.repositories.MembroObraRepository;
 import br.upe.fastfvs.repositories.ObraRepository;
+import br.upe.fastfvs.services.LinkService;
 import br.upe.fastfvs.services.ObraService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,17 +21,23 @@ public class ObraServiceImpl implements ObraService {
 
     private final ObraRepository obraRepository;
     private final MembroObraRepository membroObraRepository;
+    private final LinkService linkService;
 
     @Override
     @Transactional
     public Obra criarObra(Obra obra, Usuario criador) {
+
+        obra.setLinkProjeto("");
         Obra obraSalva = obraRepository.save(obra);
+
+
+        obraSalva.setLinkProjeto(linkService.gerarLinkObra(obraSalva.getId()));
+        obraSalva = obraRepository.save(obraSalva);
 
         MembroObra vinculo = new MembroObra();
         vinculo.setObra(obraSalva);
         vinculo.setUsuario(criador);
         vinculo.setRole(TipoPermissao.GERENTE);
-
         membroObraRepository.save(vinculo);
 
         return obraSalva;
@@ -43,7 +51,7 @@ public class ObraServiceImpl implements ObraService {
     @Override
     public Obra buscarPorId(Long id) {
         return obraRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Obra não encontrada com o ID: " + id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Obra", id));
     }
 
     @Override
@@ -51,5 +59,13 @@ public class ObraServiceImpl implements ObraService {
     public void apagarObra(Long id) {
         Obra obra = buscarPorId(id);
         obraRepository.delete(obra);
+    }
+
+    @Override
+    @Transactional
+    public Obra atualizarNome(Long id, String novoNome) {
+        Obra obra = buscarPorId(id);
+        obra.setNome(novoNome);
+        return obraRepository.save(obra);
     }
 }

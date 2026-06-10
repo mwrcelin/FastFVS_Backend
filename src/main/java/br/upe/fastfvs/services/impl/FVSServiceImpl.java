@@ -6,8 +6,10 @@ import br.upe.fastfvs.entities.Subsecao;
 import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.enums.AcaoFVS;
 import br.upe.fastfvs.entities.enums.StatusFVS;
+import br.upe.fastfvs.exceptions.RecursoNaoEncontradoException;
 import br.upe.fastfvs.repositories.FVSRepository;
 import br.upe.fastfvs.repositories.HistoricoFVSRepository;
+import br.upe.fastfvs.repositories.SubsecaoRepository;
 import br.upe.fastfvs.services.FVSService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class FVSServiceImpl implements FVSService {
 
     private final FVSRepository fvsRepository;
     private final HistoricoFVSRepository historicoRepository;
+    private final SubsecaoRepository subsecaoRepository;
 
     @Override
     @Transactional
@@ -32,7 +35,7 @@ public class FVSServiceImpl implements FVSService {
         fvs.setAbertaPor(criador);
 
         FVS fvsSalva = fvsRepository.save(fvs);
-        registrarHistorico(fvsSalva, criador, AcaoFVS.CRIACAO, "FVS criada via sistema.");
+        registrarHistorico(fvsSalva, criador, AcaoFVS.CRIACAO);
         return fvsSalva;
     }
 
@@ -52,27 +55,26 @@ public class FVSServiceImpl implements FVSService {
 
     @Override
     @Transactional
-    public FVS atualizarStatus(UUID fvsId, StatusFVS novoStatus, Usuario usuario, String observacao) {
+    public FVS atualizarStatus(UUID fvsId, StatusFVS novoStatus, Usuario usuario) {
         FVS fvs = fvsRepository.findById(fvsId)
-                .orElseThrow(() -> new RuntimeException("FVS não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("FVS", fvsId));
 
         fvs.setStatus(novoStatus);
         fvs.setDataUltimaEdicao(Instant.now());
         fvs.setUltimaEdicaoPor(usuario);
 
         FVS fvsAtualizada = fvsRepository.save(fvs);
-        registrarHistorico(fvsAtualizada, usuario, AcaoFVS.EDICAO_STATUS, observacao);
+        registrarHistorico(fvsAtualizada, usuario, AcaoFVS.EDICAO_STATUS);
 
         return fvsAtualizada;
     }
 
-    private void registrarHistorico(FVS fvs, Usuario usuario, AcaoFVS acao, String obs) {
+    private void registrarHistorico(FVS fvs, Usuario usuario, AcaoFVS acao) {
         HistoricoFVS historico = new HistoricoFVS();
         historico.setFvs(fvs);
         historico.setUsuario(usuario);
         historico.setAcao(acao);
         historico.setDataHora(Instant.now());
-        historico.setObservacao(obs);
 
         historicoRepository.save(historico);
     }
@@ -93,5 +95,17 @@ public class FVSServiceImpl implements FVSService {
     @Override
     public List<FVS> listarPorSubsecaoEStatus(Long subsecaoId, StatusFVS status) {
         return fvsRepository.findBySubsecaoIdAndStatus(subsecaoId, status);
+    }
+
+    @Override
+    @Transactional
+    public List<FVS> criarFVSEmTodasSubsecoes(String titulo, Long obraId, Usuario criador) {
+        List<Subsecao> subsecoes = subsecaoRepository.findByObraId(obraId);
+        return subsecoes.stream().map(subsecao -> {
+            FVS fvs = new FVS();
+            fvs.setTitulo(titulo);
+            fvs.setSubsecao(subsecao);
+            return criarFVS(fvs, criador);
+        }).toList();
     }
 }

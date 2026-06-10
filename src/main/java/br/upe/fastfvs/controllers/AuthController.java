@@ -4,6 +4,11 @@ import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.dtos.LoginRequestDTO;
 import br.upe.fastfvs.entities.dtos.UsuarioCreateDTO;
 import br.upe.fastfvs.entities.dtos.UsuarioResponseDTO;
+import br.upe.fastfvs.entities.dtos.ValidacaoDTO;
+import br.upe.fastfvs.exceptions.CredenciaisInvalidasException;
+import br.upe.fastfvs.exceptions.OperacaoInvalidaException;
+import br.upe.fastfvs.exceptions.RecursoNaoEncontradoException;
+import br.upe.fastfvs.services.TokenSenhaService;
 import br.upe.fastfvs.services.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,49 +24,42 @@ public class AuthController {
     private final UsuarioService usuarioService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registrar(@RequestBody @Valid UsuarioCreateDTO dto) {
-
-        // 1. Validação simples de senhas iguais direto no Controller
+    public ResponseEntity<UsuarioResponseDTO> registrar(@RequestBody @Valid UsuarioCreateDTO dto) {
         if (!dto.senha().equals(dto.confirmarSenha())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("As senhas não correspondem."));
+            throw new OperacaoInvalidaException("As senhas não correspondem.");
         }
-
-        try {
-            try {
-                usuarioService.buscarPorEmail(dto.email());
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(new ErrorResponse("Este e-mail já está cadastrado no sistema."));
-            } catch (RuntimeException e) {
-            }
-
-            Usuario novoUsuario = usuarioService.cadastrar(dto.toEntity());
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new UsuarioResponseDTO(novoUsuario));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Erro interno ao cadastrar usuário."));
-        }
+        Usuario novoUsuario = usuarioService.cadastrar(dto.toEntity());
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UsuarioResponseDTO(novoUsuario));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO request) {
+    public ResponseEntity<UsuarioResponseDTO> login(@RequestBody @Valid LoginRequestDTO request) {
         try {
             Usuario usuario = usuarioService.buscarPorEmail(request.email());
-
             if (!usuario.getSenha().equals(request.senha())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ErrorResponse("E-mail ou senha inválidos."));
+                throw new CredenciaisInvalidasException();
             }
-
             return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("E-mail ou senha inválidos."));
+        } catch (RecursoNaoEncontradoException e) {
+            throw new CredenciaisInvalidasException();
         }
     }
 
-    public record ErrorResponse(String mensagem) {}
+    private final TokenSenhaService tokenSenhaService;
+
+    @PostMapping("/solicitar-reset")
+    public ResponseEntity<String> solicitar(@RequestParam String email) {
+        tokenSenhaService.solicitarRecuperacao(email);
+        // Sempre retorna sucesso, mesmo se o e-mail não existir (segurança silênciosa)
+        return ResponseEntity.ok("Se o e-mail existir, você receberá o código.");
+    }
+
+    // Rota: /api/auth/validar-token
+    @PostMapping("/validar-token")
+    public ResponseEntity<String> validar(@RequestBody ValidacaoDTO dto) {
+        if (tokenSenhaService.validarToken(dto.email(), dto.token())) {
+            return ResponseEntity.ok("Token válido.");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido ou expirado.");
+    }
 }

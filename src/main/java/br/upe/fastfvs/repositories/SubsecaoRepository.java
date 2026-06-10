@@ -11,4 +11,6 @@ public interface SubsecaoRepository extends JpaRepository<Subsecao, Long> {
     List<Subsecao> findByObraAndPaiIsNull(Obra obra);
 
     List<Subsecao> findByPaiId(Long paiId);
+
+    List<Subsecao> findByObraId(Long obraId);
 }

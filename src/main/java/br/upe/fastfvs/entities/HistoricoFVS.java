@@ -33,8 +33,4 @@ public class HistoricoFVS {
     @Column(nullable = false)
     private Instant dataHora; // horario da ação
 
-    @Column
-    private String observacao;
-
-
 }

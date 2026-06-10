@@ -9,11 +9,12 @@ import java.util.List;
 public interface FVSService {
 
     FVS criarFVS(FVS fvs, Usuario criador);
-    FVS atualizarStatus(UUID fvsId, StatusFVS novoStatus, Usuario usuario, String observacao);
+    FVS atualizarStatus(UUID fvsId, StatusFVS novoStatus, Usuario usuario);
     long contarFvsPorStatusEObra(Long obraId, StatusFVS status);
 
     double calcularPercentualConformidade(Long obraId);
     List<String> listarNomesPadroes();
     List<FVS> listarPorSubsecao(Long subsecaoId);
     List<FVS> listarPorSubsecaoEStatus(Long subsecaoId, StatusFVS status);
+    List<FVS> criarFVSEmTodasSubsecoes(String titulo, Long obraId, Usuario criador);
 }

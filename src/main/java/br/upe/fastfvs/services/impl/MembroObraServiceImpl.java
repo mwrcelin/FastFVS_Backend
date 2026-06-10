@@ -4,6 +4,7 @@ import br.upe.fastfvs.entities.MembroObra;
 import br.upe.fastfvs.entities.Obra;
 import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.enums.TipoPermissao;
+import br.upe.fastfvs.exceptions.RecursoNaoEncontradoException;
 import br.upe.fastfvs.repositories.MembroObraRepository;
 import br.upe.fastfvs.services.MembroObraService;
 import br.upe.fastfvs.services.ObraService;
@@ -58,7 +59,7 @@ public class MembroObraServiceImpl implements MembroObraService {
     @Override
     public MembroObra alterarRole(Long id, String novaRole) {
         MembroObra membro = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Membro não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("MembroObra", id));
 
         TipoPermissao permissao = TipoPermissao.valueOf(novaRole.toUpperCase());
         membro.setRole(permissao);

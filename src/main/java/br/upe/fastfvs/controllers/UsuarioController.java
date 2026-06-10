@@ -16,12 +16,6 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> cadastrar(@RequestBody @Valid UsuarioCreateDTO dto) {
-        Usuario novoUsuario = usuarioService.cadastrar(dto.toEntity());
-        return ResponseEntity.status(HttpStatus.CREATED).body(new UsuarioResponseDTO(novoUsuario));
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> obterPerfil(@PathVariable Long id) {
         Usuario usuario = usuarioService.buscarPorId(id);

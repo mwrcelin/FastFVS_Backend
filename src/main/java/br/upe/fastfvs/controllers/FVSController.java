@@ -5,6 +5,7 @@ import br.upe.fastfvs.entities.Subsecao;
 import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.dtos.*;
 import br.upe.fastfvs.entities.enums.StatusFVS;
+import br.upe.fastfvs.exceptions.OperacaoInvalidaException;
 import br.upe.fastfvs.services.FVSService;
 import br.upe.fastfvs.services.SubsecaoService;
 import br.upe.fastfvs.services.UsuarioService;
@@ -40,20 +41,31 @@ public class FVSController {
     }
 
     @PostMapping
-    public ResponseEntity<FVSResponseDTO> criar(
+    public ResponseEntity<?> criar(
             @RequestBody @Valid FVSCreateDTO dto,
             @RequestParam Long usuarioId) {
 
-
         Usuario criador = usuarioService.buscarPorId(usuarioId);
-        Subsecao subsecao = subsecaoService.buscarPorId(dto.subsecaoId());
 
+        if (Boolean.TRUE.equals(dto.aplicarEmTodas())) {
+            if (dto.obraId() == null)
+                throw new OperacaoInvalidaException("obraId é obrigatório quando aplicarEmTodas = true.");
+
+            List<FVSResponseDTO> criadas = fvsService
+                    .criarFVSEmTodasSubsecoes(dto.titulo(), dto.obraId(), criador)
+                    .stream().map(FVSResponseDTO::new).toList();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(criadas);
+        }
+
+        if (dto.subsecaoId() == null)
+            throw new OperacaoInvalidaException("subsecaoId é obrigatório quando aplicarEmTodas = false.");
+
+        Subsecao subsecao = subsecaoService.buscarPorId(dto.subsecaoId());
         FVS novaFvs = dto.toEntity();
         novaFvs.setSubsecao(subsecao);
 
-        FVS fvsSalva = fvsService.criarFVS(novaFvs, criador);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(new FVSResponseDTO(fvsSalva));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new FVSResponseDTO(fvsService.criarFVS(novaFvs, criador)));
     }
 
     @PatchMapping("/{id}/status")
@@ -62,7 +74,7 @@ public class FVSController {
             @RequestBody FVSUpdateStatusDTO dto) {
 
         Usuario usuario = usuarioService.buscarPorId(dto.usuarioId());
-        FVS fvsAtualizada = fvsService.atualizarStatus(id, dto.status(), usuario, dto.observacao());
+        FVS fvsAtualizada = fvsService.atualizarStatus(id, dto.status(), usuario);
 
         return ResponseEntity.ok(new FVSResponseDTO(fvsAtualizada));
     }
