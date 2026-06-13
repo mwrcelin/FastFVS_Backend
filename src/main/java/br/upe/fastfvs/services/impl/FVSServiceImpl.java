@@ -108,4 +108,17 @@ public class FVSServiceImpl implements FVSService {
             return criarFVS(fvs, criador);
         }).toList();
     }
+
+    @Override
+    @Transactional
+    public void deletarFVS(UUID id) {
+        FVS fvs = fvsRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("FVS", id));
+        fvsRepository.delete(fvs);
+    }
+
+    @Override
+    public boolean existeFvsComStatusNaSubsecao(Long subsecaoId, StatusFVS status) {
+        return fvsRepository.existsBySubsecaoIdAndStatus(subsecaoId, status);
+    }
 }

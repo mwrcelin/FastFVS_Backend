@@ -25,4 +25,6 @@ public interface FVSRepository extends JpaRepository<FVS, UUID> {
     long countBySubsecaoObraId(@Param("obraId") Long obraId);
 
     List<FVS> findBySubsecaoId(Long subsecaoId);
+
+    boolean existsBySubsecaoIdAndStatus(Long subsecaoId, StatusFVS status);
 }

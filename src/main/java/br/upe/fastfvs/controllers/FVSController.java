@@ -113,4 +113,21 @@ public class FVSController {
 
         return ResponseEntity.ok(resumo);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarFVS(@PathVariable UUID id) {
+        fvsService.deletarFVS(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/subsecao/{subsecaoId}/status-presentes")
+    public ResponseEntity<Map<String, Boolean>> statusPresentesNaSubsecao(@PathVariable Long subsecaoId) {
+        Map<String, Boolean> resumo = Map.of(
+                "NAO_INICIADA", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.NAO_INICIADA),
+                "EM_ANALISE", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.EM_ANALISE),
+                "CONFORME", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.CONFORME),
+                "NAO_CONFORME", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.NAO_CONFORME)
+        );
+        return ResponseEntity.ok(resumo);
+    }
 }

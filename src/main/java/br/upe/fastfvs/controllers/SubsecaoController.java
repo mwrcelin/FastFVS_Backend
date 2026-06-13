@@ -110,4 +110,10 @@ public class SubsecaoController {
         String qrBase64 = qrCodeService.gerarQRCodeBase64(link, 300, 300);
         return ResponseEntity.ok(Map.of("link", link, "qrcode", qrBase64));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarSubsecao(@PathVariable Long id) {
+        subsecaoService.deletarSubsecao(id);
+        return ResponseEntity.noContent().build();
+    }
 }

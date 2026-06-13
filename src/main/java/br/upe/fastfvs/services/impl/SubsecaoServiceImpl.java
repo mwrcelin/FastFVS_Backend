@@ -84,6 +84,13 @@ public class SubsecaoServiceImpl implements SubsecaoService {
 
     @Override
     @Transactional
+    public void deletarSubsecao(Long id) {
+        Subsecao subsecao = buscarPorId(id);
+        repository.delete(subsecao);
+    }
+
+    @Override
+    @Transactional
     public void criarEstruturaAutomatica(
             Long obraId,
             int qtdBlocos,

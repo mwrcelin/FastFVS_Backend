@@ -24,7 +24,7 @@ public class ConviteObraServiceImpl implements ConviteObraService {
     private final ObraService obraService;
     private final MembroObraService membroObraService;
     private final MembroObraRepository membroObraRepository;
-    private final LinkService linkService; // no lugar do @Value
+    private final LinkService linkService;
 
     @Override
     public String gerarConvite(Long obraId, TipoPermissao role) {

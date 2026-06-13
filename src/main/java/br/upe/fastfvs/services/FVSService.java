@@ -17,4 +17,6 @@ public interface FVSService {
     List<FVS> listarPorSubsecao(Long subsecaoId);
     List<FVS> listarPorSubsecaoEStatus(Long subsecaoId, StatusFVS status);
     List<FVS> criarFVSEmTodasSubsecoes(String titulo, Long obraId, Usuario criador);
+    void deletarFVS(UUID id);
+    boolean existeFvsComStatusNaSubsecao(Long subsecaoId, StatusFVS status);
 }
