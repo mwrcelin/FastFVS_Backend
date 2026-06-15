@@ -21,7 +21,6 @@ public class MembroObraController {
 
     @PostMapping
     public ResponseEntity<MembroObraDTO> adicionarMembro(@RequestBody MembroObraDTO dto) {
-        // No Service, você deve garantir que o usuarioId e obraId existem
         MembroObra membro = membroObraService.adicionarMembro(dto.usuarioId(), dto.obraId(), dto.role());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MembroObraDTO(membro));
     }
@@ -37,7 +36,6 @@ public class MembroObraController {
 
         return ResponseEntity.ok(dtos);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removerMembro(@PathVariable Long id) {

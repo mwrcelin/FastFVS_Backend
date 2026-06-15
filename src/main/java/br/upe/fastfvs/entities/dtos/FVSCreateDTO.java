@@ -8,8 +8,10 @@ public record FVSCreateDTO(
         @NotBlank(message = "O título da FVS é obrigatório")
         String titulo,
 
-        @NotNull(message = "O ID da subsecção é obrigatório")
-        Long subsecaoId
+        Long subsecaoId,
+
+        Long obraId,
+        Boolean aplicarEmTodas
 ) {
     public FVS toEntity() {
         FVS fvs = new FVS();

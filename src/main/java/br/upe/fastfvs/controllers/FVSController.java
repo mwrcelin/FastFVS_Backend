@@ -5,6 +5,7 @@ import br.upe.fastfvs.entities.Subsecao;
 import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.dtos.*;
 import br.upe.fastfvs.entities.enums.StatusFVS;
+import br.upe.fastfvs.exceptions.OperacaoInvalidaException;
 import br.upe.fastfvs.services.FVSService;
 import br.upe.fastfvs.services.SubsecaoService;
 import br.upe.fastfvs.services.UsuarioService;
@@ -23,6 +24,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FVSController {
 
+    //services feitos no front, exceto as partes que vão pra obra
+
     private final FVSService fvsService;
     private final UsuarioService usuarioService;
     private final SubsecaoService subsecaoService;
@@ -33,27 +36,32 @@ public class FVSController {
         return ResponseEntity.ok(new FVSPadroesResponseDTO(nomes));
     }
 
-    @GetMapping("/obra/{obraId}/conformidade")
-    public ResponseEntity<ConformidadeResponseDTO> getConformidadeObra(@PathVariable Long obraId) {
-        double valor = fvsService.calcularPercentualConformidade(obraId);
-        return ResponseEntity.ok(new ConformidadeResponseDTO(valor));
-    }
-
     @PostMapping
-    public ResponseEntity<FVSResponseDTO> criar(
+    public ResponseEntity<?> criar(
             @RequestBody @Valid FVSCreateDTO dto,
             @RequestParam Long usuarioId) {
 
-
         Usuario criador = usuarioService.buscarPorId(usuarioId);
-        Subsecao subsecao = subsecaoService.buscarPorId(dto.subsecaoId());
 
+        if (Boolean.TRUE.equals(dto.aplicarEmTodas())) {
+            if (dto.obraId() == null)
+                throw new OperacaoInvalidaException("obraId é obrigatório quando aplicarEmTodas = true.");
+
+            List<FVSResponseDTO> criadas = fvsService
+                    .criarFVSEmTodasSubsecoes(dto.titulo(), dto.obraId(), criador)
+                    .stream().map(FVSResponseDTO::new).toList();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(criadas);
+        }
+
+        if (dto.subsecaoId() == null)
+            throw new OperacaoInvalidaException("subsecaoId é obrigatório quando aplicarEmTodas = false.");
+
+        Subsecao subsecao = subsecaoService.buscarPorId(dto.subsecaoId());
         FVS novaFvs = dto.toEntity();
         novaFvs.setSubsecao(subsecao);
 
-        FVS fvsSalva = fvsService.criarFVS(novaFvs, criador);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(new FVSResponseDTO(fvsSalva));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new FVSResponseDTO(fvsService.criarFVS(novaFvs, criador)));
     }
 
     @PatchMapping("/{id}/status")
@@ -62,7 +70,7 @@ public class FVSController {
             @RequestBody FVSUpdateStatusDTO dto) {
 
         Usuario usuario = usuarioService.buscarPorId(dto.usuarioId());
-        FVS fvsAtualizada = fvsService.atualizarStatus(id, dto.status(), usuario, dto.observacao());
+        FVS fvsAtualizada = fvsService.atualizarStatus(id, dto.status(), usuario);
 
         return ResponseEntity.ok(new FVSResponseDTO(fvsAtualizada));
     }
@@ -72,10 +80,10 @@ public class FVSController {
         List<FVS> fichas = fvsService.listarPorSubsecao(subsecaoId);
         List<FVSResponseDTO> dtos = fichas.stream()
                 .map(FVSResponseDTO::new)
-                .toList();
+                .toList();  
         return ResponseEntity.ok(dtos);
     }
-
+//inútil
     @GetMapping("/subsecao/{subsecaoId}/status/{status}")
     public ResponseEntity<List<FVSResponseDTO>> listarPorSubsecaoEStatus(
             @PathVariable Long subsecaoId,
@@ -85,20 +93,10 @@ public class FVSController {
         return ResponseEntity.ok(dtos);
     }
 
-    @GetMapping("/obra/{obraId}/contagem-status")
-    public ResponseEntity<Map<String, Long>> contarStatusDaObra(@PathVariable Long obraId) {
-        long naoIniciadas = fvsService.contarFvsPorStatusEObra(obraId, StatusFVS.NAO_INICIADA);
-        long emAnalise = fvsService.contarFvsPorStatusEObra(obraId, StatusFVS.EM_ANALISE);
-        long conformes = fvsService.contarFvsPorStatusEObra(obraId, StatusFVS.CONFORME);
-        long naoConformes = fvsService.contarFvsPorStatusEObra(obraId, StatusFVS.NAO_CONFORME);
-
-        Map<String, Long> resumo = Map.of(
-                "NAO_INICIADA", naoIniciadas,
-                "EM_ANALISE", emAnalise,
-                "CONFORME", conformes,
-                "NAO_CONFORME", naoConformes
-        );
-
-        return ResponseEntity.ok(resumo);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarFVS(@PathVariable UUID id) {
+        fvsService.deletarFVS(id);
+        return ResponseEntity.noContent().build();
     }
+
 }

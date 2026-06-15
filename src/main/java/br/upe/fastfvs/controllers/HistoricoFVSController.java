@@ -15,6 +15,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class HistoricoFVSController {
 
+    //feito no service de fvs lá no front
+
     private final HistoricoFVSService historicoService;
 
     @GetMapping("/ficha/{fvsId}")

@@ -9,16 +9,14 @@ public record HistoricoFVSDTO(
         UUID id,
         AcaoFVS acao,
         Instant dataHora,
-        String usuarioNome,
-        String observacao
+        String usuarioNome
 ) {
     public HistoricoFVSDTO(HistoricoFVS entity) {
         this(
                 entity.getId(),
                 entity.getAcao(),
                 entity.getDataHora(),
-                entity.getUsuario().getNome(),
-                entity.getObservacao()
+                entity.getUsuario().getNome()
         );
     }
 }

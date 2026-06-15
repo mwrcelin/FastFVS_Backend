@@ -11,7 +11,6 @@ public record ObraDTO(
         @NotBlank(message = "O nome da obra não pode estar vazio")
         String nome,
 
-        @NotBlank(message = "O link do projeto é obrigatório")
         String linkProjeto,
 
         Double percentualConformidade, // Progresso (ex: 31%)

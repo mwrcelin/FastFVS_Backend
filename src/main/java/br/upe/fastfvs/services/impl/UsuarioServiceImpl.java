@@ -1,6 +1,9 @@
 package br.upe.fastfvs.services.impl;
 
 import br.upe.fastfvs.entities.Usuario;
+import br.upe.fastfvs.exceptions.EmailJaCadastradoException;
+import br.upe.fastfvs.exceptions.RecursoNaoEncontradoException;
+import br.upe.fastfvs.exceptions.SenhaIncorretaException;
 import br.upe.fastfvs.repositories.UsuarioRepository;
 import br.upe.fastfvs.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -18,30 +21,34 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public Usuario cadastrar(Usuario usuario) {
+
+        usuarioRepository.findByEmail(usuario.getEmail()).ifPresent(u -> {
+            throw new EmailJaCadastradoException(usuario.getEmail());
+        });
         return usuarioRepository.save(usuario);
     }
 
     @Override
     public Usuario buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o e-mail: " + email));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário", email));
     }
 
     @Override
     public Usuario buscarPorId(Long id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário", id));
     }
 
     @Override
     public void atualizarDados(Long id, String nome, String email) {
         Usuario usuario = buscarPorId(id);
 
+
         if (!usuario.getEmail().equalsIgnoreCase(email)) {
-            Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(email);
-            if (usuarioExistente.isPresent()) {
-                throw new RuntimeException("Este email já está em uso por outra conta.");
-            }
+            usuarioRepository.findByEmail(email).ifPresent(u -> {
+                throw new EmailJaCadastradoException(email);
+            });
         }
 
         usuario.setNome(nome);
@@ -53,8 +60,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void atualizarSenha(Long id, String senhaAtual, String novaSenha) {
         Usuario usuario = buscarPorId(id);
         if (!usuario.getSenha().equals(senhaAtual)) {
-            throw new RuntimeException("A senha atual informada está incorreta.");
+            throw new SenhaIncorretaException();
         }
+
         usuario.setSenha(novaSenha);
         usuarioRepository.save(usuario);
     }

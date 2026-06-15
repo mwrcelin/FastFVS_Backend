@@ -6,10 +6,8 @@ import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.dtos.EstruturaAutomaticaDTO;
 import br.upe.fastfvs.entities.dtos.SubsecaoCreateDTO;
 import br.upe.fastfvs.entities.dtos.SubsecaoResponseDTO;
-import br.upe.fastfvs.services.ObraService;
-import br.upe.fastfvs.services.QrCodeService;
-import br.upe.fastfvs.services.SubsecaoService;
-import br.upe.fastfvs.services.UsuarioService;
+import br.upe.fastfvs.entities.enums.StatusFVS;
+import br.upe.fastfvs.services.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +25,13 @@ public class SubsecaoController {
     private final UsuarioService usuarioService;
     private final ObraService obraService;
     private final QrCodeService qrCodeService;
+    private final LinkService linkService;
+    private final FVSService fvsService;
 
     @PostMapping
     public ResponseEntity<SubsecaoResponseDTO> criarSubsecao(
             @RequestBody @Valid SubsecaoCreateDTO dto) {
+
         Usuario criador = usuarioService.buscarPorId(dto.usuarioId());
 
         Obra obra = obraService.buscarPorId(dto.obraId());
@@ -48,6 +49,18 @@ public class SubsecaoController {
         return ResponseEntity.ok(new SubsecaoResponseDTO(salva));
     }
 
+    //veio de fvs
+    @GetMapping("/{subsecaoId}/status-presentes")
+    public ResponseEntity<Map<String, Boolean>> statusPresentesNaSubsecao(@PathVariable Long subsecaoId) {
+        Map<String, Boolean> resumo = Map.of(
+                "NAO_INICIADA", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.NAO_INICIADA),
+                "EM_ANALISE", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.EM_ANALISE),
+                "CONFORME", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.CONFORME),
+                "NAO_CONFORME", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.NAO_CONFORME)
+        );
+        return ResponseEntity.ok(resumo);
+    }
+
     @PostMapping("/geracao-automatica")
     public ResponseEntity<Void> criarEstruturaAutomatica(@RequestBody EstruturaAutomaticaDTO dto) {
         Usuario criador = usuarioService.buscarPorId(dto.usuarioId());
@@ -63,17 +76,6 @@ public class SubsecaoController {
         );
 
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{id}/qrcode")
-    public ResponseEntity<String> obterQRCodeSubsecao(@PathVariable Long id) {
-        Subsecao subsecao = subsecaoService.buscarPorId(id); // <- Adicione esse método no seu Service!
-
-        String urlSubsecao = "https://fastfvs-app.com/subsecao/" + id;
-
-        String qrCodeBase64 = qrCodeService.gerarQRCodeBase64(urlSubsecao, 300, 300);
-
-        return ResponseEntity.ok(qrCodeBase64);
     }
 
 
@@ -105,5 +107,27 @@ public class SubsecaoController {
     public ResponseEntity<Map<String, String>> obterCaminhoCompleto(@PathVariable Long id) {
         String caminho = subsecaoService.obterCaminhoCompleto(id);
         return ResponseEntity.ok(Map.of("caminho", caminho));
+    }
+
+
+    @GetMapping("/{id}/link")
+    public ResponseEntity<Map<String, String>> obterLink(@PathVariable Long id) {
+        subsecaoService.buscarPorId(id); // valida existência
+        String link = linkService.gerarLinkSubsecao(id);
+        return ResponseEntity.ok(Map.of("link", link));
+    }
+
+    @GetMapping("/{id}/qrcode")
+    public ResponseEntity<Map<String, String>> obterQRCode(@PathVariable Long id) {
+        subsecaoService.buscarPorId(id); // valida existência
+        String link = linkService.gerarLinkSubsecao(id);
+        String qrBase64 = qrCodeService.gerarQRCodeBase64(link, 300, 300);
+        return ResponseEntity.ok(Map.of("link", link, "qrcode", qrBase64));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarSubsecao(@PathVariable Long id) {
+        subsecaoService.deletarSubsecao(id);
+        return ResponseEntity.noContent().build();
     }
 }

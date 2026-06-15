@@ -35,6 +35,7 @@ public class SyncServiceImpl implements SyncService {
 
         List<FVSResponseDTO> sucessos = new ArrayList<>();
         List<FVSResponseDTO> conflitos = new ArrayList<>();
+        List<UUID> naoEncontrados = new ArrayList<>(); // <-- Nova lista
 
         for (FVSSyncDTO item : request.alteracoes()) {
             Optional<FVS> fvsOpt = fvsRepository.findById(item.id());
@@ -47,10 +48,13 @@ public class SyncServiceImpl implements SyncService {
                 } else {
                     conflitos.add(new FVSResponseDTO(fvsBanco));
                 }
+            } else {
+                // O FIX: Se não encontrar, avisa o mobile!
+                naoEncontrados.add(item.id());
             }
         }
 
-        return new SyncResponseDTO(sucessos, conflitos);
+        return new SyncResponseDTO(sucessos, conflitos, naoEncontrados);
     }
 
     private FVS atualizarFVS(FVS fvs, FVSSyncDTO item) {
@@ -61,18 +65,17 @@ public class SyncServiceImpl implements SyncService {
         fvs.setUltimaEdicaoPor(usuario);
 
         FVS fvsSalva = fvsRepository.save(fvs);
-        registrarHistorico(fvsSalva, usuario, item.observacao());
+        registrarHistorico(fvsSalva, usuario);
 
         return fvsSalva;
     }
 
-    private void registrarHistorico(FVS fvs, Usuario usuario, String obs) {
+    private void registrarHistorico(FVS fvs, Usuario usuario) {
         HistoricoFVS historico = new HistoricoFVS();
         historico.setFvs(fvs);
         historico.setUsuario(usuario);
         historico.setAcao(AcaoFVS.EDICAO_STATUS);
         historico.setDataHora(fvs.getDataUltimaEdicao());
-        historico.setObservacao(obs);
         historicoRepository.save(historico);
     }
 }
