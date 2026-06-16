@@ -6,6 +6,7 @@ import br.upe.fastfvs.entities.Usuario;
 import br.upe.fastfvs.entities.dtos.EstruturaAutomaticaDTO;
 import br.upe.fastfvs.entities.dtos.SubsecaoCreateDTO;
 import br.upe.fastfvs.entities.dtos.SubsecaoResponseDTO;
+import br.upe.fastfvs.entities.enums.StatusFVS;
 import br.upe.fastfvs.services.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class SubsecaoController {
     private final ObraService obraService;
     private final QrCodeService qrCodeService;
     private final LinkService linkService;
+    private final FVSService fvsService;
 
     @PostMapping
     public ResponseEntity<SubsecaoResponseDTO> criarSubsecao(
@@ -45,6 +47,18 @@ public class SubsecaoController {
         Subsecao salva = subsecaoService.criarSubsecao(novaSubsecao, criador, dto.fvsEscolhidas());
 
         return ResponseEntity.ok(new SubsecaoResponseDTO(salva));
+    }
+
+    //veio de fvs
+    @GetMapping("/{subsecaoId}/status-presentes")
+    public ResponseEntity<Map<String, Boolean>> statusPresentesNaSubsecao(@PathVariable Long subsecaoId) {
+        Map<String, Boolean> resumo = Map.of(
+                "NAO_INICIADA", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.NAO_INICIADA),
+                "EM_ANALISE", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.EM_ANALISE),
+                "CONFORME", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.CONFORME),
+                "NAO_CONFORME", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.NAO_CONFORME)
+        );
+        return ResponseEntity.ok(resumo);
     }
 
     @PostMapping("/geracao-automatica")

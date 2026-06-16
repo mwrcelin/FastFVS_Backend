@@ -24,6 +24,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FVSController {
 
+    //services feitos no front, exceto as partes que vão pra obra
+
     private final FVSService fvsService;
     private final UsuarioService usuarioService;
     private final SubsecaoService subsecaoService;
@@ -32,12 +34,6 @@ public class FVSController {
     public ResponseEntity<FVSPadroesResponseDTO> listarNomesPadroes() {
         List<String> nomes = fvsService.listarNomesPadroes();
         return ResponseEntity.ok(new FVSPadroesResponseDTO(nomes));
-    }
-
-    @GetMapping("/obra/{obraId}/conformidade")
-    public ResponseEntity<ConformidadeResponseDTO> getConformidadeObra(@PathVariable Long obraId) {
-        double valor = fvsService.calcularPercentualConformidade(obraId);
-        return ResponseEntity.ok(new ConformidadeResponseDTO(valor));
     }
 
     @PostMapping
@@ -87,7 +83,7 @@ public class FVSController {
                 .toList();  
         return ResponseEntity.ok(dtos);
     }
-
+//inútil
     @GetMapping("/subsecao/{subsecaoId}/status/{status}")
     public ResponseEntity<List<FVSResponseDTO>> listarPorSubsecaoEStatus(
             @PathVariable Long subsecaoId,
@@ -97,37 +93,10 @@ public class FVSController {
         return ResponseEntity.ok(dtos);
     }
 
-    @GetMapping("/obra/{obraId}/contagem-status")
-    public ResponseEntity<Map<String, Long>> contarStatusDaObra(@PathVariable Long obraId) {
-        long naoIniciadas = fvsService.contarFvsPorStatusEObra(obraId, StatusFVS.NAO_INICIADA);
-        long emAnalise = fvsService.contarFvsPorStatusEObra(obraId, StatusFVS.EM_ANALISE);
-        long conformes = fvsService.contarFvsPorStatusEObra(obraId, StatusFVS.CONFORME);
-        long naoConformes = fvsService.contarFvsPorStatusEObra(obraId, StatusFVS.NAO_CONFORME);
-
-        Map<String, Long> resumo = Map.of(
-                "NAO_INICIADA", naoIniciadas,
-                "EM_ANALISE", emAnalise,
-                "CONFORME", conformes,
-                "NAO_CONFORME", naoConformes
-        );
-
-        return ResponseEntity.ok(resumo);
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarFVS(@PathVariable UUID id) {
         fvsService.deletarFVS(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/subsecao/{subsecaoId}/status-presentes")
-    public ResponseEntity<Map<String, Boolean>> statusPresentesNaSubsecao(@PathVariable Long subsecaoId) {
-        Map<String, Boolean> resumo = Map.of(
-                "NAO_INICIADA", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.NAO_INICIADA),
-                "EM_ANALISE", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.EM_ANALISE),
-                "CONFORME", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.CONFORME),
-                "NAO_CONFORME", fvsService.existeFvsComStatusNaSubsecao(subsecaoId, StatusFVS.NAO_CONFORME)
-        );
-        return ResponseEntity.ok(resumo);
-    }
 }
