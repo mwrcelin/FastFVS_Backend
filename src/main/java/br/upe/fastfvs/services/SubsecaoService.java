@@ -14,4 +14,5 @@ public interface SubsecaoService {
     Subsecao buscarPorId(Long id);
     String obterCaminhoCompleto(Long subsecaoId);
     void deletarSubsecao(Long id);
+    double calcularPercentualConformidade(Long subsecaoId);
 }

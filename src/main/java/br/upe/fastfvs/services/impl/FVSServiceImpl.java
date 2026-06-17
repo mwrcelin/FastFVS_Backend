@@ -49,6 +49,15 @@ public class FVSServiceImpl implements FVSService {
     }
 
     @Override
+    public double calcularPercentualConformidadePorSubsecao(Long subsecaoId) {
+        long total = fvsRepository.countBySubsecaoId(subsecaoId);
+        long conformes = fvsRepository.countBySubsecaoIdAndStatus(subsecaoId, StatusFVS.CONFORME);
+
+        if (total == 0) return 0.0;
+        return (double) (conformes * 100) / total;
+    }
+
+    @Override
     public long contarFvsPorStatusEObra(Long obraId, StatusFVS status) {
         return fvsRepository.countByObraIdAndStatus(obraId, status);
     }

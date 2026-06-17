@@ -19,4 +19,5 @@ public interface FVSService {
     List<FVS> criarFVSEmTodasSubsecoes(String titulo, Long obraId, Usuario criador);
     void deletarFVS(UUID id);
     boolean existeFvsComStatusNaSubsecao(Long subsecaoId, StatusFVS status);
+    double calcularPercentualConformidadePorSubsecao(Long subsecaoId);
 }

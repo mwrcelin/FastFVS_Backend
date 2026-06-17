@@ -3,7 +3,11 @@ package br.upe.fastfvs.repositories;
 import br.upe.fastfvs.entities.Obra;
 import br.upe.fastfvs.entities.Subsecao;
 import br.upe.fastfvs.entities.Usuario;
+import br.upe.fastfvs.entities.enums.StatusFVS;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 public interface SubsecaoRepository extends JpaRepository<Subsecao, Long> {
@@ -13,4 +17,5 @@ public interface SubsecaoRepository extends JpaRepository<Subsecao, Long> {
     List<Subsecao> findByPaiId(Long paiId);
 
     List<Subsecao> findByObraId(Long obraId);
+
 }

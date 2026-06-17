@@ -3,6 +3,7 @@ package br.upe.fastfvs.controllers;
 import br.upe.fastfvs.entities.Obra;
 import br.upe.fastfvs.entities.Subsecao;
 import br.upe.fastfvs.entities.Usuario;
+import br.upe.fastfvs.entities.dtos.ConformidadeResponseDTO;
 import br.upe.fastfvs.entities.dtos.EstruturaAutomaticaDTO;
 import br.upe.fastfvs.entities.dtos.SubsecaoCreateDTO;
 import br.upe.fastfvs.entities.dtos.SubsecaoResponseDTO;
@@ -129,5 +130,11 @@ public class SubsecaoController {
     public ResponseEntity<Void> deletarSubsecao(@PathVariable Long id) {
         subsecaoService.deletarSubsecao(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/conformidade")
+    public ResponseEntity<ConformidadeResponseDTO> getConformidade(@PathVariable Long id) {
+        double valor = subsecaoService.calcularPercentualConformidade(id);
+        return ResponseEntity.ok(new ConformidadeResponseDTO(valor));
     }
 }

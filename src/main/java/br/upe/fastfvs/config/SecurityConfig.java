@@ -23,13 +23,21 @@ public class SecurityConfig {
             
             // 2. Desabilita proteção CSRF (padrão para APIs REST que usam JWT)
             .csrf(csrf -> csrf.disable())
-            
-            // 3. Configura quais rotas são públicas e quais são privadas
+
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Libera geral as rotas de login/cadastro
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll() // Libera o Swagger
-                .anyRequest().authenticated() // Bloqueia todas as outras rotas
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                    .anyRequest().permitAll() // 👈 troca authenticated() por permitAll()
             );
+        // 3. Configura quais rotas são públicas e quais são privadas
+            //.authorizeHttpRequests(auth -> auth
+               // .requestMatchers("/api/auth/**").permitAll() // Libera geral as rotas de login/cadastro
+                //.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll() // Libera o Swagger
+                //.anyRequest().authenticated() // Bloqueia todas as outras rotas
+
+            //);
+
+
 
         return http.build();
     }

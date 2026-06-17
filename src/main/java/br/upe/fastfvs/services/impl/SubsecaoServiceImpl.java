@@ -90,6 +90,12 @@ public class SubsecaoServiceImpl implements SubsecaoService {
     }
 
     @Override
+    public double calcularPercentualConformidade(Long subsecaoId) {
+        buscarPorId(subsecaoId);
+        return fvsService.calcularPercentualConformidadePorSubsecao(subsecaoId);
+    }
+
+    @Override
     @Transactional
     public void criarEstruturaAutomatica(
             Long obraId,
