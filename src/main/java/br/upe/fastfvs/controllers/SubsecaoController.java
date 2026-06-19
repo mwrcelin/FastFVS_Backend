@@ -68,10 +68,7 @@ public class SubsecaoController {
 
         subsecaoService.criarEstruturaAutomatica(
                 dto.obraId(),
-                dto.qtdBlocos(),
-                dto.pavPorBloco(),
-                dto.aptPorPav(),
-                dto.padraoNumeracao(),
+                dto.niveis(),
                 criador,
                 dto.fvsEscolhidas()
         );

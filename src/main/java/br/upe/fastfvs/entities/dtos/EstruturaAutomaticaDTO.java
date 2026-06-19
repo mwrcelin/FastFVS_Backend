@@ -4,10 +4,8 @@ import java.util.List;
 
 public record EstruturaAutomaticaDTO(
         Long obraId,
-        int qtdBlocos,
-        int pavPorBloco,
-        int aptPorPav,
-        String padraoNumeracao,
+        List<NivelHierarquiaDTO> niveis,
         Long usuarioId,
         List<String> fvsEscolhidas
+
 ) {}

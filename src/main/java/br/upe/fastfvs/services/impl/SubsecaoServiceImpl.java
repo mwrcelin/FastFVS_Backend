@@ -13,6 +13,10 @@ import br.upe.fastfvs.services.SubsecaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.upe.fastfvs.entities.dtos.NivelHierarquiaDTO;
+import br.upe.fastfvs.exceptions.OperacaoInvalidaException;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.List;
 
@@ -99,55 +103,49 @@ public class SubsecaoServiceImpl implements SubsecaoService {
     @Transactional
     public void criarEstruturaAutomatica(
             Long obraId,
-            int qtdBlocos,
-            int pavPorBloco,
-            int aptPorPav,
-            String padraoNumeracao,
+            List<NivelHierarquiaDTO> niveis,
             Usuario criador,
             List<String> fvsEscolhidas) {
 
         Obra obra = obraService.buscarPorId(obraId);
 
-        int numeroBaseApto = 0;
-        try {
-            if (padraoNumeracao != null && padraoNumeracao.contains("-")) {
-                String parteInicial = padraoNumeracao.split("-")[0].trim();
-                numeroBaseApto = Integer.parseInt(parteInicial);
-            }
-        } catch (NumberFormatException e) {
-            numeroBaseApto = 0;
+        if (niveis == null || niveis.isEmpty()) {
+            throw new OperacaoInvalidaException("É necessário informar ao menos um nível da hierarquia.");
         }
 
-        int contadorPavimento = 1;
-        int contadorApto = numeroBaseApto + 1;
+        // contador global de cada nível (chave = nome do nível, valor = próximo número)
+        Map<String, Integer> contadores = new HashMap<>();
 
-        for (int b = 1; b <= qtdBlocos; b++) {
-            Subsecao bloco = new Subsecao();
-            bloco.setNome("Bloco " + b);
-            bloco.setObra(obra);
-            bloco.setPai(null);
+        gerarNivel(obra, niveis, 0, null, contadores, criador, fvsEscolhidas);
+    }
 
-            Subsecao blocoSalvo = criarSubsecao(bloco, criador, fvsEscolhidas);
+    private void gerarNivel(
+            Obra obra,
+            List<NivelHierarquiaDTO> niveis,
+            int indiceNivel,
+            Subsecao pai,
+            Map<String, Integer> contadores,
+            Usuario criador,
+            List<String> fvsEscolhidas) {
 
-            for (int p = 1; p <= pavPorBloco; p++) {
-                Subsecao pavimento = new Subsecao();
-                pavimento.setNome("Pavimento " + contadorPavimento);
-                pavimento.setObra(obra);
-                pavimento.setPai(blocoSalvo);
-                Subsecao pavSalvo = criarSubsecao(pavimento, criador, fvsEscolhidas);
+        if (indiceNivel >= niveis.size()) {
+            return;
+        }
 
-                contadorPavimento++;
+        NivelHierarquiaDTO nivelAtual = niveis.get(indiceNivel);
 
-                for (int a = 1; a <= aptPorPav; a++) {
-                    Subsecao apartamento = new Subsecao();
-                    apartamento.setNome("Apartamento " + contadorApto);
-                    apartamento.setObra(obra);
-                    apartamento.setPai(pavSalvo);
+        for (int i = 0; i < nivelAtual.quantidade(); i++) {
+            int numero = contadores.merge(nivelAtual.nome(), 1, Integer::sum);
 
-                    criarSubsecao(apartamento, criador, fvsEscolhidas);
-                    contadorApto++;
-                }
-            }
+            Subsecao item = new Subsecao();
+            item.setNome(nivelAtual.nome() + " " + numero);
+            item.setObra(obra);
+            item.setPai(pai);
+
+            Subsecao itemSalvo = criarSubsecao(item, criador, fvsEscolhidas);
+
+            // recursão: gera o próximo nível dentro de cada item criado neste nível
+            gerarNivel(obra, niveis, indiceNivel + 1, itemSalvo, contadores, criador, fvsEscolhidas);
         }
     }
 }
