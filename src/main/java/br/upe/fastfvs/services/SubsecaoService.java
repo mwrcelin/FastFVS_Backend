@@ -17,4 +17,5 @@ public interface SubsecaoService {
     String obterCaminhoCompleto(Long subsecaoId);
     void deletarSubsecao(Long id);
     double calcularPercentualConformidade(Long subsecaoId);
+    Subsecao atualizarNome(Long id, String novoNome);
 }

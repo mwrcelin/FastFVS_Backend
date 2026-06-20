@@ -134,4 +134,12 @@ public class SubsecaoController {
         double valor = subsecaoService.calcularPercentualConformidade(id);
         return ResponseEntity.ok(new ConformidadeResponseDTO(valor));
     }
+
+    @PatchMapping("/{id}/nome")
+    public ResponseEntity<SubsecaoResponseDTO> atualizarNome(
+            @PathVariable Long id,
+            @RequestParam String novoNome) {
+        Subsecao subsecao = subsecaoService.atualizarNome(id, novoNome);
+        return ResponseEntity.ok(new SubsecaoResponseDTO(subsecao));
+    }
 }

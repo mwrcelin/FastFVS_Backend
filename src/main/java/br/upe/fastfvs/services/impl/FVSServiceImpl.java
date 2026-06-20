@@ -130,4 +130,12 @@ public class FVSServiceImpl implements FVSService {
     public boolean existeFvsComStatusNaSubsecao(Long subsecaoId, StatusFVS status) {
         return fvsRepository.existsBySubsecaoIdAndStatus(subsecaoId, status);
     }
+
+    @Override
+    @Transactional
+    public int deletarPorTituloNaObra(Long obraId, String titulo) {
+        List<FVS> fichas = fvsRepository.findByObraIdAndTitulo(obraId, titulo);
+        fvsRepository.deleteAll(fichas);
+        return fichas.size();
+    }
 }

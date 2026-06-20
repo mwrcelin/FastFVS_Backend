@@ -20,4 +20,5 @@ public interface FVSService {
     void deletarFVS(UUID id);
     boolean existeFvsComStatusNaSubsecao(Long subsecaoId, StatusFVS status);
     double calcularPercentualConformidadePorSubsecao(Long subsecaoId);
+    int deletarPorTituloNaObra(Long obraId, String titulo);
 }

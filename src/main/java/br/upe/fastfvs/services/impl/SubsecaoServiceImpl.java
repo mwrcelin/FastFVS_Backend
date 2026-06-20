@@ -148,4 +148,12 @@ public class SubsecaoServiceImpl implements SubsecaoService {
             gerarNivel(obra, niveis, indiceNivel + 1, itemSalvo, contadores, criador, fvsEscolhidas);
         }
     }
+
+    @Override
+    @Transactional
+    public Subsecao atualizarNome(Long id, String novoNome) {
+        Subsecao subsecao = buscarPorId(id);
+        subsecao.setNome(novoNome);
+        return repository.save(subsecao);
+    }
 }

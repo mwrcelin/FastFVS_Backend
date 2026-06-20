@@ -99,4 +99,13 @@ public class FVSController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/obra/{obraId}/titulo/{titulo}")
+    public ResponseEntity<Map<String, Integer>> deletarPorTituloNaObra(
+            @PathVariable Long obraId,
+            @PathVariable String titulo) {
+
+        int quantidade = fvsService.deletarPorTituloNaObra(obraId, titulo);
+        return ResponseEntity.ok(Map.of("quantidadeExcluida", quantidade));
+    }
+
 }
