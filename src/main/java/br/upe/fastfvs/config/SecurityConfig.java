@@ -50,7 +50,7 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(List.of("*")); 
         
         // Permite os métodos HTTP que o Flutter vai usar (incluindo OPTIONS que é o "preflight")
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         
         // Permite o envio de qualquer cabeçalho (Headers)
         configuration.setAllowedHeaders(List.of("*"));

@@ -13,9 +13,11 @@ public record FVSResponseDTO(
         Instant dataAbertura,
         Instant dataUltimaEdicao,
         Long subsecaoId,
-        Long abertaPorId
+        Long abertaPorId,
+        Long ultimaEdicaoPorId,
+        String ultimaEdicaoPorNome
 ) {
-    
+
     public FVSResponseDTO(FVS entity) {
         this(
                 entity.getId(),
@@ -25,7 +27,9 @@ public record FVSResponseDTO(
                 entity.getDataAbertura(),
                 entity.getDataUltimaEdicao(),
                 entity.getSubsecao() != null ? entity.getSubsecao().getId() : null,
-                entity.getAbertaPor() != null ? entity.getAbertaPor().getId() : null
+                entity.getAbertaPor() != null ? entity.getAbertaPor().getId() : null,
+                entity.getUltimaEdicaoPor() != null ? entity.getUltimaEdicaoPor().getId() : null,
+                entity.getUltimaEdicaoPor() != null ? entity.getUltimaEdicaoPor().getNome() : null
         );
     }
 }
