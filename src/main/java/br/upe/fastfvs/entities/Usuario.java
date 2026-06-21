@@ -24,7 +24,7 @@ public class Usuario {
     @Column(nullable = false)
     private String senha;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String fotoPerfil;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
