@@ -16,10 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+record RedefinirSenhaDTO(String email, String token, String novaSenha) {}
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
 
     private final UsuarioService usuarioService;
 
@@ -61,5 +64,17 @@ public class AuthController {
             return ResponseEntity.ok("Token válido.");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido ou expirado.");
+    }
+
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<String> redefinirSenha(@RequestBody RedefinirSenhaDTO dto) {
+        if (!tokenSenhaService.validarToken(dto.email(), dto.token())) {
+            throw new OperacaoInvalidaException("Token inválido ou expirado.");
+        }
+
+        Usuario usuario = usuarioService.buscarPorEmail(dto.email());
+        usuarioService.atualizarSenhaViaToken(usuario.getId(), dto.novaSenha());
+
+        return ResponseEntity.ok("Senha redefinida com sucesso.");
     }
 }

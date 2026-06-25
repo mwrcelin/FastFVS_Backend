@@ -13,4 +13,5 @@ public interface UsuarioService {
     void atualizarFoto(Long id, String foto);
 
     void excluirConta(Long id);
+    void atualizarSenhaViaToken(Long id, String novaSenha);
 }

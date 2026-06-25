@@ -80,4 +80,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuarioRepository.delete(usuario);
     }
+
+    @Override
+    @Transactional
+    public void atualizarSenhaViaToken(Long id, String novaSenha) {
+        Usuario usuario = buscarPorId(id);
+        usuario.setSenha(novaSenha);
+        usuarioRepository.save(usuario);
+    }
 }
